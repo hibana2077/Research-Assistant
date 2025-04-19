@@ -7,3 +7,5 @@ pymongo
 sqlalchemy
 fastembed
 transformers
+qdrant-client
+faiss-cpu
