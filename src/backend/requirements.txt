@@ -9,3 +9,4 @@ fastembed
 transformers
 qdrant-client
 faiss-cpu
+voyageai
