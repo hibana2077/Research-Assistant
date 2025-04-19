@@ -1,0 +1,9 @@
+fastapi
+pydantic
+numpy
+requests
+uvicorn
+pymongo
+sqlalchemy
+fastembed
+transformers
