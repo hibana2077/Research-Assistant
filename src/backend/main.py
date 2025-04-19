@@ -116,6 +116,7 @@ async def create_paper(paper: dict):
     ```json
     {
         "name": "name", # static
+        "user": "username", # static
     }
     ```
     """
@@ -126,7 +127,7 @@ async def create_paper(paper: dict):
 
     result = papers_collection.insert_one(paper)
     
-    return {"status": "success", "message": "Paper created successfully", "paper_id": str(result.inserted_id)}
+    return {"status": "success", "message": "Paper created successfully", "paper_id": paper["paper_id"]}
 
 @app.post("/papers/update")
 async def update_paper(paper: dict):
@@ -146,15 +147,88 @@ async def update_paper(paper: dict):
     papers_collection = mongo_db["papers"]
     
     paper_id = paper.get("paper_id")
+    username = paper.get("user")
+    if not paper_id or not username:
+        raise HTTPException(status_code=400, detail="Paper ID and username are required")
     new_data = paper.get("new_data", {})
     
     # Update the paper in MongoDB
-    result = papers_collection.update_one({"_id": paper_id}, {"$set": new_data})
+    result = papers_collection.update_one({"paper_id": paper_id, "user": username}, {"$set": new_data})
     
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Paper not found")
     
     return {"status": "success", "message": "Paper updated successfully"}
+
+@app.post("/papers/delete")
+async def delete_paper(paper: dict):
+    """
+    Delete a paper in MongoDB.
+    ## Structure:
+    ```json
+    {
+        "paper_id": "paper_id",
+        "user": "username"
+    }
+    ```
+    """
+    mongo_db = mongo_client["papers_db"]
+    papers_collection = mongo_db["papers"]
+    
+    paper_id = paper.get("paper_id")
+    username = paper.get("user")
+    
+    if not paper_id or not username:
+        raise HTTPException(status_code=400, detail="Paper ID and username are required")
+    
+    # Delete the paper in MongoDB
+    result = papers_collection.delete_one({"paper_id": paper_id, "user": username})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Paper not found")
+    
+    return {"status": "success", "message": "Paper deleted successfully"}
+
+@app.post("/papers/list")
+async def list_papers():
+    """
+    List all papers in MongoDB.
+    """
+    mongo_db = mongo_client["papers_db"]
+    papers_collection = mongo_db["papers"]
+    
+    papers = list(papers_collection.find({}, {"_id": 0}))
+    
+    return {"status": "success", "papers": papers}
+
+@app.post("/papers/get_one")
+async def get_one_paper(paper: dict):
+    """
+    Get one paper in MongoDB.
+    ## Structure:
+    ```json
+    {
+        "paper_id": "paper_id",
+        "user": "username"
+    }
+    ```
+    """
+    mongo_db = mongo_client["papers_db"]
+    papers_collection = mongo_db["papers"]
+    
+    paper_id = paper.get("paper_id")
+    username = paper.get("user")
+    
+    if not paper_id or not username:
+        raise HTTPException(status_code=400, detail="Paper ID and username are required")
+    
+    # Get the paper in MongoDB
+    paper_data = papers_collection.find_one({"paper_id": paper_id, "user": username, "_id": 0})
+    
+    if not paper_data:
+        raise HTTPException(status_code=404, detail="Paper not found")
+    
+    return {"status": "success", "paper": paper_data}
 
 @app.post("/arxiv/search")
 async def search_arxiv(query_data: dict):
