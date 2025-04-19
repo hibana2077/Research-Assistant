@@ -2,8 +2,6 @@ import os
 import json
 import uvicorn
 import pymongo
-import fastembed
-import openai
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Depends
@@ -12,10 +10,6 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
-from fastembed import TextEmbedding
-from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct
-
 
 # self-defined imports
 from utils.arxiv import ArXivComponent
