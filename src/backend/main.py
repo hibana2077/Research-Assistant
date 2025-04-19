@@ -107,6 +107,55 @@ async def login(user: dict, db: Session = Depends(get_db)):
     
     return {"status": "success", "message": "Login successful"}
 
+# Create a new paper(collection) in MongoDB
+@app.post("/papers/create")
+async def create_paper(paper: dict):
+    """
+    Create a new paper in MongoDB.
+    ## Structure:
+    ```json
+    {
+        "name": "name", # static
+    }
+    ```
+    """
+
+    mongo_db = mongo_client["papers_db"]
+    papers_collection = mongo_db["papers"]
+    
+
+    result = papers_collection.insert_one(paper)
+    
+    return {"status": "success", "message": "Paper created successfully", "paper_id": str(result.inserted_id)}
+
+@app.post("/papers/update")
+async def update_paper(paper: dict):
+    """
+    Update a paper in MongoDB.
+    ## Structure:
+    ```json
+    {
+        "paper_id": "paper_id",
+        "new_data": {
+            "key": "value"
+        }
+    }
+    ```
+    """
+    mongo_db = mongo_client["papers_db"]
+    papers_collection = mongo_db["papers"]
+    
+    paper_id = paper.get("paper_id")
+    new_data = paper.get("new_data", {})
+    
+    # Update the paper in MongoDB
+    result = papers_collection.update_one({"_id": paper_id}, {"$set": new_data})
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Paper not found")
+    
+    return {"status": "success", "message": "Paper updated successfully"}
+
 @app.post("/arxiv/search")
 async def search_arxiv(query_data: dict):
     """
