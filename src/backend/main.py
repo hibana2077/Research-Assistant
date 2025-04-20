@@ -115,8 +115,8 @@ async def create_paper(paper: dict):
     ## Structure:
     ```json
     {
-        "name": "name", # static
-        "user": "username", # static
+        "paper_name": "paper_name", # static
+        "username": "username", # static
     }
     ```
     """
@@ -124,10 +124,12 @@ async def create_paper(paper: dict):
     mongo_db = mongo_client["papers_db"]
     papers_collection = mongo_db["papers"]
     
+    if not paper.get("paper_name") or not paper.get("username"):
+        raise HTTPException(status_code=400, detail="Paper name and username are required")
 
     result = papers_collection.insert_one(paper)
     
-    return {"status": "success", "message": "Paper created successfully", "paper_id": paper["paper_id"]}
+    return {"status": "success", "message": "Paper created successfully", "paper_id": result.inserted_id}
 
 @app.post("/papers/update")
 async def update_paper(paper: dict):
@@ -136,7 +138,7 @@ async def update_paper(paper: dict):
     ## Structure:
     ```json
     {
-        "paper_id": "paper_id",
+        "paper_name": "paper_name",
         "new_data": {
             "key": "value"
         }
@@ -146,14 +148,14 @@ async def update_paper(paper: dict):
     mongo_db = mongo_client["papers_db"]
     papers_collection = mongo_db["papers"]
     
-    paper_id = paper.get("paper_id")
-    username = paper.get("user")
-    if not paper_id or not username:
-        raise HTTPException(status_code=400, detail="Paper ID and username are required")
+    paper_name = paper.get("paper_name")
+    username = paper.get("username")
+    if not paper_name or not username:
+        raise HTTPException(status_code=400, detail="Paper name and username are required")
     new_data = paper.get("new_data", {})
     
     # Update the paper in MongoDB
-    result = papers_collection.update_one({"paper_id": paper_id, "user": username}, {"$set": new_data})
+    result = papers_collection.update_one({"paper_name": paper_name, "username": username}, {"$set": new_data})
     
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Paper not found")
@@ -167,22 +169,22 @@ async def delete_paper(paper: dict):
     ## Structure:
     ```json
     {
-        "paper_id": "paper_id",
-        "user": "username"
+        "paper_name": "paper_name",
+        "username": "username"
     }
     ```
     """
     mongo_db = mongo_client["papers_db"]
     papers_collection = mongo_db["papers"]
     
-    paper_id = paper.get("paper_id")
-    username = paper.get("user")
+    paper_name = paper.get("paper_name")
+    username = paper.get("username")
     
-    if not paper_id or not username:
-        raise HTTPException(status_code=400, detail="Paper ID and username are required")
+    if not paper_name or not username:
+        raise HTTPException(status_code=400, detail="Paper name and username are required")
     
     # Delete the paper in MongoDB
-    result = papers_collection.delete_one({"paper_id": paper_id, "user": username})
+    result = papers_collection.delete_one({"paper_name": paper_name, "username": username})
     
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Paper not found")
@@ -208,22 +210,22 @@ async def get_one_paper(paper: dict):
     ## Structure:
     ```json
     {
-        "paper_id": "paper_id",
-        "user": "username"
+        "paper_name": "paper_name",
+        "username": "username"
     }
     ```
     """
     mongo_db = mongo_client["papers_db"]
     papers_collection = mongo_db["papers"]
     
-    paper_id = paper.get("paper_id")
-    username = paper.get("user")
+    paper_name = paper.get("paper_name")
+    username = paper.get("username")
     
-    if not paper_id or not username:
-        raise HTTPException(status_code=400, detail="Paper ID and username are required")
+    if not paper_name or not username:
+        raise HTTPException(status_code=400, detail="Paper name and username are required")
     
     # Get the paper in MongoDB
-    paper_data = papers_collection.find_one({"paper_id": paper_id, "user": username, "_id": 0})
+    paper_data = papers_collection.find_one({"paper_name": paper_name, "username": username, "_id": 0})
     
     if not paper_data:
         raise HTTPException(status_code=404, detail="Paper not found")
