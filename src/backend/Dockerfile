@@ -13,6 +13,8 @@ COPY requirements.txt /app/requirements.txt
 
 RUN uv pip install --system --no-cache-dir -r /app/requirements.txt
 
+RUN python3 ./utils/download_models_hf.py
+
 COPY . /app
 
 EXPOSE 8081
