@@ -10,3 +10,5 @@ transformers
 qdrant-client
 faiss-cpu
 voyageai
+magic-pdf[full]
+huggingface_hub
