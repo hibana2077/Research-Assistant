@@ -22,7 +22,7 @@ def view_paper_dialog(paper_name, username):
                 suggested_keywords = llm_keywords_prompt(
                     st.session_state["keywords_input_form"].split(",")
                 )
-                st.info(", ".join(suggested_keywords))
+                st.session_state['tipwords'] = suggested_keywords
 
             tmp_keywords_input = st.text_input(
                 "Please enter keywords separated by commas 👇",
@@ -30,6 +30,8 @@ def view_paper_dialog(paper_name, username):
                 key="keywords_input_form",
                 on_change=on_change_keywords,
             )
+            if st.session_state.get('tipwords'):
+                st.info("Suggested keywords: " + ", ".join(st.session_state['tipwords']))
             submit_button = st.button("Submit")
             if submit_button:
                 keywords = [
