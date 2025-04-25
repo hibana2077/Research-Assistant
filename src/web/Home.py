@@ -73,4 +73,4 @@ else:
                 st.markdown(f"## {kb['icon']} {kb['paper_name']}")
                 st.write(kb['desc'])
                 if st.button('Open', key=f'open_kb_{it}'):
-                    view_paper_dialog(kb['paper_name'])
+                    view_paper_dialog(kb['paper_name'], kb['username'])
