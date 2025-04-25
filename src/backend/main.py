@@ -228,7 +228,7 @@ async def get_one_paper(paper: dict):
         raise HTTPException(status_code=400, detail="Paper name and username are required")
     
     # Get the paper in MongoDB
-    paper_data = papers_collection.find_one({"paper_name": paper_name, "username": username, "_id": 0})
+    paper_data = papers_collection.find_one({"paper_name": paper_name, "username": username}, { "_id": 0})
     
     if not paper_data:
         raise HTTPException(status_code=404, detail="Paper not found")
