@@ -42,10 +42,10 @@ if not st.session_state.login:
                     st.error("Password and Confirm Password do not match.")
                 else:
                     register_result = register(new_username, new_password)
-                    if register_result[0]:
-                        st.success(register_result[1])
+                    if register_result:
+                        st.success("Registration successful! You can now log in.")
                     else:
-                        st.error(register_result[1])
+                        st.error("Registration failed. Please try again.")
 else:
     # 主頁內容
     st.title("🔬 Lab")
