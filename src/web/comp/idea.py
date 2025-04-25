@@ -24,7 +24,7 @@ def view_paper_dialog(paper_name, username):
                 )
                 st.session_state['tipwords'] = suggested_keywords
 
-            tmp_keywords_input = st.text_input(
+            tmp_keywords_input = st.text_area(
                 "Please enter keywords separated by commas 👇",
                 value="",
                 key="keywords_input_form",
