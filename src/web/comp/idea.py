@@ -3,8 +3,8 @@ import requests
 import streamlit as st
 import streamlit_tags
 
-from utils.data import get_paper_idea, update_paper_idea
-from utils.llm import llm_keywords_prompt
+from .utils.data import get_paper_idea, update_paper_idea
+from .utils.llm import llm_keywords_prompt
 
 @st.dialog("View Paper Idea")
 def view_paper_dialog(paper_name, username):
