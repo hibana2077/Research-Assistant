@@ -5,18 +5,18 @@ import requests
 def new_idea(data:dict):
     """
     {
-        "name": "Knowledge Base Name",
+        "paper_name": "Knowledge Base Name",
         "desc": "Knowledge Base Description",
         "icon": "Knowledge Base Icon",
-        "owner": "Owner Username"
+        "username": "Owner Username"
     }
     """
-    url = os.getenv("BACKEND_SERVER", "http://localhost:8000") + "/new_idea"
+    url = os.getenv("BACKEND_SERVER", "http://localhost:8000") + "/papers/create"
     payload = {
-        "name": data["name"],
+        "paper_name": data["name"],
         "desc": data["desc"],
         "icon": data["icon"],
-        "owner": data["owner"]
+        "username": data["owner"]
     }
     headers = {
         "Content-Type": "application/json"
