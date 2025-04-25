@@ -140,6 +140,7 @@ async def update_paper(paper: dict):
     ```json
     {
         "paper_name": "paper_name",
+        "username": "username",
         "new_data": {
             "key": "value"
         }

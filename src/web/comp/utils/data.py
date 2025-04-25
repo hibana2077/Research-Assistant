@@ -36,4 +36,23 @@ def get_paper_idea(paper_name, username):
     if response.status_code == 200:
         return response.json()
     else:
-        return {"status": "fail", "data": {}}
+        return {"status": "fail", "paper": {}}
+    
+def update_paper_idea(paper_name, username, new_data):
+    """
+    Update a paper idea by its name.
+    """
+    url = f"{BACKEND_SERVER}/papers/update"
+    payload = {
+        "paper_name": paper_name,
+        "username": username,
+        "new_data": new_data
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"status": "fail"}
