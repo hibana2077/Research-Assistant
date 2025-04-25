@@ -3,8 +3,8 @@ import os
 import requests
 
 # Self-defined imports
-from utils.auth import login, register
-from utils.data import list_all_paper_idea
+from comp.utils.auth import login, register
+from comp.utils.data import list_all_paper_idea
 from comp.new_idea import new_idea_dialog 
 from comp.idea import view_paper_dialog
 

@@ -11,6 +11,7 @@ services:
       MONGO_SERVER: "mongodb://db_mongo:27017"
       OPENROUTE_API_KEY: ${OPENROUTE_API_KEY}
       LLM_MODEL: ${LLM_MODEL}
+      KEY_PROMPT_MODEL: ${KEY_PROMPT_MODEL}
     depends_on:
       - backend
     networks:
