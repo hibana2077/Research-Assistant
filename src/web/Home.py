@@ -52,3 +52,22 @@ else:
     st.divider()
     
     col_l, col_r = st.columns([3, 1])
+    
+    with col_l:
+        st.write('Your paper idea:')
+    with col_r:
+        new_kb = st.button('New idea', key='new_kb')
+        if new_kb:
+            new_kb_dialog()
+    
+    kb_left, kb_mid, kb_right = st.columns(3)
+    act_kb = list_all_knowledge_bases(st.session_state.username)
+    if act_kb['count'] > 0:
+        for it, kb in enumerate(act_kb['data']):
+            where = kb_left if it % 3 == 0 else kb_mid if it % 3 == 1 else kb_right
+            new_container = where.container(key=f'kb_{it}', border=True)
+            with new_container:
+                st.markdown(f"## {kb['icon']} {kb['name']}")
+                st.write(kb['desc'])
+                if st.button('Open', key=f'open_kb_{it}'):
+                    view_kb_dialog(kb['name'])
