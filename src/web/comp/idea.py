@@ -8,9 +8,6 @@ from .utils.llm import llm_keywords_prompt
 
 @st.dialog("View Paper Idea")
 def view_paper_dialog(paper_name, username):
-    def on_change_keywords():
-        suggested_keywords = llm_keywords_prompt(st.session_state['keywords_input_form'].split(","))
-        st.info(", ".join(suggested_keywords))
     tab1, tab2 = st.tabs(["Keyword", "TBD"])
     with tab1:
         # st.write(f"Paper Name: {paper_name}, Username: {username}")
@@ -22,7 +19,15 @@ def view_paper_dialog(paper_name, username):
         if not keywords:
             st.subheader("Setup keywords")
             with st.form(key='keywords_form'):
-                tmp_keywords_input = st.text_input("Please enter keywords separated by commas 👇", value="", key="keywords_input_form", on_change=on_change_keywords)
+                def on_change_keywords():
+                    suggested_keywords = llm_keywords_prompt(st.session_state['keywords_input_form'].split(","))
+                    st.info(", ".join(suggested_keywords))
+                tmp_keywords_input = st.text_input(
+                    "Please enter keywords separated by commas 👇",
+                    value="",
+                    key="keywords_input_form",
+                    on_change=on_change_keywords
+                )
                 submit_button = st.form_submit_button(label='Submit')
                 if submit_button:
                     keywords = [keyword.strip() for keyword in tmp_keywords_input.split(',')]
