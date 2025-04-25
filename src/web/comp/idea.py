@@ -18,21 +18,30 @@ def view_paper_dialog(paper_name, username):
         keywords = paper_data['paper'].get('keywords', [])
         if not keywords:
             st.subheader("Setup keywords")
-            def on_change_keywords():
-                suggested_keywords = llm_keywords_prompt(
-                    st.session_state["keywords_input_form"].split(",")
-                )
-                st.session_state['tipwords'] = suggested_keywords
+            # def on_change_keywords():
+            #     suggested_keywords = llm_keywords_prompt(
+            #         st.session_state["keywords_input_form"].split(",")
+            #     )
+            #     st.session_state['tipwords'] = suggested_keywords
 
             tmp_keywords_input = st.text_area(
                 "Please enter keywords separated by commas 👇",
                 value="",
                 key="keywords_input_form",
-                on_change=on_change_keywords,
+                # on_change=on_change_keywords,
             )
+            left_col, right_col = st.columns([1, 1])
+            with left_col:
+                generate_keywords = st.button("Generate Keywords", key="generate_keywords")
+            with right_col:
+                submit_button = st.button("Submit", key="submit_keywords")
+            if generate_keywords:
+                # Call the LLM to get suggested keywords
+                st.session_state['tipwords'] = llm_keywords_prompt(
+                    tmp_keywords_input.split(",")
+                )
             if st.session_state.get('tipwords'):
                 st.info("Suggested keywords: " + ", ".join(st.session_state['tipwords']))
-            submit_button = st.button("Submit")
             if submit_button:
                 keywords = [
                     keyword.strip() for keyword in tmp_keywords_input.split(",")
