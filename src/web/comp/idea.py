@@ -10,7 +10,7 @@ from .utils.llm import llm_keywords_prompt
 def view_paper_dialog(paper_name, username):
     tab1, tab2 = st.tabs(["Keyword", "TBD"])
     with tab1:
-        st.write(f"Paper Name: {paper_name}, Username: {username}")
+        # st.write(f"Paper Name: {paper_name}, Username: {username}")
         paper_data = get_paper_idea(paper_name, username)
         if paper_data['status'] == 'fail':
             st.error("Failed to retrieve paper idea.")
