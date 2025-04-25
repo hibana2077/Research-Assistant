@@ -4,6 +4,8 @@ import requests
 
 # Self-defined imports
 from utils.auth import login, register
+from utils.data import list_all_paper_idea
+from comp.new_idea import new_idea_dialog 
 
 if 'login' not in st.session_state:
     st.session_state.login = False
@@ -58,10 +60,10 @@ else:
     with col_r:
         new_kb = st.button('New idea', key='new_kb')
         if new_kb:
-            new_kb_dialog()
+            new_idea_dialog()
     
     kb_left, kb_mid, kb_right = st.columns(3)
-    act_kb = list_all_knowledge_bases(st.session_state.username)
+    act_kb = list_all_paper_idea(st.session_state.username)
     if act_kb['count'] > 0:
         for it, kb in enumerate(act_kb['data']):
             where = kb_left if it % 3 == 0 else kb_mid if it % 3 == 1 else kb_right
