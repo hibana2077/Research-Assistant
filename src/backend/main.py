@@ -222,6 +222,7 @@ async def get_one_paper(paper: dict):
     
     paper_name = paper.get("paper_name")
     username = paper.get("username")
+    print(f"paper_name: {paper_name}, username: {username}")
     
     if not paper_name or not username:
         raise HTTPException(status_code=400, detail="Paper name and username are required")
