@@ -4,6 +4,7 @@ import uvicorn
 import pymongo
 import numpy as np
 import pandas as pd
+from pprint import pprint
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.orm import sessionmaker, Session
@@ -128,8 +129,8 @@ async def create_paper(paper: dict):
         raise HTTPException(status_code=400, detail="Paper name and username are required")
 
     result = papers_collection.insert_one(paper)
-    
-    return {"status": "success", "message": "Paper created successfully", "paper_id": result.inserted_id}
+    pprint(result.inserted_id)
+    return {"status": "success", "message": "Paper created successfully"}
 
 @app.post("/papers/update")
 async def update_paper(paper: dict):
