@@ -21,13 +21,13 @@ if not st.session_state.login:
             submit_button = st.form_submit_button(label='Login')
             if submit_button:
                 login_result = login(username, password)
-                if login_result[0]:
-                    st.session_state.login = True
+                if login_result:
+                    st.session_state.login = login_result
                     st.session_state.username = username
-                    st.success(login_result[1])
+                    st.success("Login successful!")
                     st.rerun()
                 else:
-                    st.error(login_result[1])
+                    st.error("Login failed. Please check your username and password.")
     
     with tabs[1]:
         # Register 表單
