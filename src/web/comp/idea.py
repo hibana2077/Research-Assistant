@@ -21,10 +21,10 @@ def view_paper_dialog(paper_name, username):
             with st.form(key='keywords_form'):
                 st.session_state.keywords_input = st.text_input("Please enter keywords separated by commas 👇", value="", key="keywords_input_form")
                 suggest_keywords_button = st.button("Suggest keywords")
+                submit_button = st.form_submit_button(label='Submit')
                 if st.session_state.keywords_input and suggest_keywords_button:
                     suggested_keywords = llm_keywords_prompt(st.session_state.keywords_input.split(","))
                     st.info(", ".join(suggested_keywords))
-                submit_button = st.form_submit_button(label='Submit')
                 if submit_button:
                     keywords = [keyword.strip() for keyword in st.session_state.keywords_input.split(',')]
                     # 更新關鍵字
