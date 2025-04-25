@@ -65,7 +65,7 @@ else:
     
     kb_left, kb_mid, kb_right = st.columns(3)
     act_kb = list_all_paper_idea(st.session_state.username)
-    if act_kb['count'] > 0:
+    if len(act_kb['data']) > 0:
         for it, kb in enumerate(act_kb['data']):
             where = kb_left if it % 3 == 0 else kb_mid if it % 3 == 1 else kb_right
             new_container = where.container(key=f'kb_{it}', border=True)
