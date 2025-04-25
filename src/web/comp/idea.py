@@ -8,6 +8,9 @@ from .utils.llm import llm_keywords_prompt
 
 @st.dialog("View Paper Idea")
 def view_paper_dialog(paper_name, username):
+    def on_change_keywords():
+        suggested_keywords = llm_keywords_prompt(st.session_state['keywords_input_form'].split(","))
+        st.info(", ".join(suggested_keywords))
     tab1, tab2 = st.tabs(["Keyword", "TBD"])
     with tab1:
         # st.write(f"Paper Name: {paper_name}, Username: {username}")
@@ -19,17 +22,12 @@ def view_paper_dialog(paper_name, username):
         if not keywords:
             st.subheader("Setup keywords")
             with st.form(key='keywords_form'):
-                st.session_state.keywords_input = st.text_input("Please enter keywords separated by commas 👇", value="", key="keywords_input_form")
-                suggest_keywords_button = st.button("Suggest keywords")
+                tmp_keywords_input = st.text_input("Please enter keywords separated by commas 👇", value="", key="keywords_input_form", on_change=on_change_keywords)
                 submit_button = st.form_submit_button(label='Submit')
-                if st.session_state.keywords_input and suggest_keywords_button:
-                    suggested_keywords = llm_keywords_prompt(st.session_state.keywords_input.split(","))
-                    st.info(", ".join(suggested_keywords))
                 if submit_button:
-                    keywords = [keyword.strip() for keyword in st.session_state.keywords_input.split(',')]
+                    keywords = [keyword.strip() for keyword in tmp_keywords_input.split(',')]
                     # 更新關鍵字
                     update_paper_idea(paper_name, username, {"keywords": keywords})
-                    st.session_state.keywords_input = ""
                     st.session_state.keywords = keywords
                     st.success("Keywords updated successfully!")
                     
