@@ -13,3 +13,4 @@ voyageai
 magic-pdf[full]
 huggingface_hub
 pandas
+defusedxml
