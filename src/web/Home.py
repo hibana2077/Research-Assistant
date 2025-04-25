@@ -70,7 +70,7 @@ else:
             where = kb_left if it % 3 == 0 else kb_mid if it % 3 == 1 else kb_right
             new_container = where.container(key=f'kb_{it}', border=True)
             with new_container:
-                st.markdown(f"## {kb['icon']} {kb['name']}")
+                st.markdown(f"## {kb['icon']} {kb['paper_name']}")
                 st.write(kb['desc'])
                 if st.button('Open', key=f'open_kb_{it}'):
-                    view_paper_dialog(kb['name'])
+                    view_paper_dialog(kb['paper_name'])
