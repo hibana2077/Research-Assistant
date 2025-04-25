@@ -1,5 +1,39 @@
 import requests
+import os
 
-def list_all_paper_idea():
+BACKEND_SERVER = os.getenv("BACKEND_SERVER", "http://localhost:8000")
 
-    return []
+def list_all_paper_idea(username):
+    """
+    List all paper ideas for a given username.
+    """
+    url = f"{BACKEND_SERVER}/papers/list"
+    payload = {
+        "username": username
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"status": "fail", "data": []}
+
+def get_paper_idea(paper_name, username):
+    """
+    Get a paper idea by its name.
+    """
+    url = f"{BACKEND_SERVER}/papers/get_one"
+    payload = {
+        "paper_name": paper_name,
+        "username": username
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"status": "fail", "data": {}}

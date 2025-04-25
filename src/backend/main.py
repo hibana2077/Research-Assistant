@@ -192,14 +192,14 @@ async def delete_paper(paper: dict):
     return {"status": "success", "message": "Paper deleted successfully"}
 
 @app.post("/papers/list")
-async def list_papers():
+async def list_papers(data:dict):
     """
     List all papers in MongoDB.
     """
     mongo_db = mongo_client["papers_db"]
     papers_collection = mongo_db["papers"]
     
-    papers = list(papers_collection.find({}, {"_id": 0}))
+    papers = list(papers_collection.find({"username": data.get("username")}, {"_id": 0}))
     
     return {"status": "success", "papers": papers}
 

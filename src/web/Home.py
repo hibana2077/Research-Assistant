@@ -6,6 +6,7 @@ import requests
 from utils.auth import login, register
 from utils.data import list_all_paper_idea
 from comp.new_idea import new_idea_dialog 
+from comp.idea import view_paper_dialog
 
 if 'login' not in st.session_state:
     st.session_state.login = False
@@ -72,4 +73,4 @@ else:
                 st.markdown(f"## {kb['icon']} {kb['name']}")
                 st.write(kb['desc'])
                 if st.button('Open', key=f'open_kb_{it}'):
-                    view_kb_dialog(kb['name'])
+                    view_paper_dialog(kb['name'])
