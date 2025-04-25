@@ -18,7 +18,7 @@ def list_all_paper_idea(username):
     if response.status_code == 200:
         return response.json()
     else:
-        return {"status": "fail", "data": []}
+        return {"status": "fail", "papers": []}
 
 def get_paper_idea(paper_name, username):
     """
