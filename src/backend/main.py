@@ -129,7 +129,7 @@ async def create_paper(paper: dict):
         raise HTTPException(status_code=400, detail="Paper name and username are required")
 
     result = papers_collection.insert_one(paper)
-    pprint(result.inserted_id)
+    pprint(result)
     return {"status": "success", "message": "Paper created successfully"}
 
 @app.post("/papers/update")
