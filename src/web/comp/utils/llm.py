@@ -24,7 +24,8 @@ def llm_keywords_prompt(current_keywords: list[str]) -> list[str]:
     user_prompt = (
         f"Given the current research keywords: {', '.join(current_keywords)}, "
         "please suggest five additional relevant keywords related to scientific research. "
-        "Reply with a JSON array of five strings only."
+        "Reply with a JSON array of five strings only. "
+        "e.g. [\"keyword1\", \"keyword2\", \"keyword3\", \"keyword4\", \"keyword5\"]"
     )
     # 呼叫 LLM
     response = client.chat.completions.create(
