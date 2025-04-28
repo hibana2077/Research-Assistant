@@ -153,7 +153,9 @@ class ArXivComponent:
 
 if __name__ == "__main__":
     # Example usage
-    query = "large language models"
+    # query = "large language models"
+    query = "graph neural networks, uncertainty quantification"
+    # query = "Target Specific De Novo Design of Drug Candidate Molecules with Graph Transformer-based Generative Adversarial Networks"
     search_component = ArXivComponent(query, max_results=5)
     
     # Search for papers

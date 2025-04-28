@@ -251,7 +251,7 @@ async def search_arxiv(query_data: dict):
     if papers and "error" in papers[0]:
         raise HTTPException(status_code=400, detail=papers[0]["error"])
     
-    return {"papers": papers}
+    return {"status": "success", "papers": papers}
 
 if __name__ == "__main__":
     uvicorn.run(app, host=HOST, port=8081)

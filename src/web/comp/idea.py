@@ -1,11 +1,15 @@
 import streamlit as st
 
-from .utils.data import get_paper_idea, update_paper_idea
+# from .utils.data import get_paper_idea, update_paper_idea
+from .utils.data import (
+    get_paper_idea,
+    update_paper_idea,
+    get_related_papers,
+)
 from .utils.llm import llm_keywords_prompt
 
 @st.dialog("View Paper Idea")
 def view_paper_dialog(paper_name, username):
-    st.subheader(f"Paper Name: {paper_name}")
     tab1, tab2 = st.tabs(["Keyword", "Related Papers"])
     # Tab 1: Keywords
     with tab1:
@@ -19,7 +23,7 @@ def view_paper_dialog(paper_name, username):
         # Always show the text area, pre-populate if keywords exist
         tmp_keywords_input = st.text_area(
             "Please enter keywords separated by commas 👇",
-            value=",".join(keywords) if keywords else "",
+            value=", ".join(keywords) if keywords else "",
             key="keywords_input_form",
         )
         left_col, right_col = st.columns([1, 1])
@@ -41,4 +45,38 @@ def view_paper_dialog(paper_name, username):
     # Tab 2: Related Papers
     with tab2:
         st.subheader("Related Papers")
-        
+        # Get data
+        paper_data = get_paper_idea(paper_name, username)
+        if paper_data['status'] == 'fail':
+            st.error("Failed to retrieve related papers.")
+            return
+        keywords = paper_data['paper'].get('keywords', [])
+        related_papers = paper_data['paper'].get('related_papers', [])
+
+        # if keywords == none, "please enter keywords first"
+        if not keywords:
+            st.warning("Please enter keywords first.")
+            return
+        # Display related papers
+        # if related_papers, display them
+        # if not related_papers and keywords != none, "Please press the button to get related papers"
+        if related_papers:
+            st.write("Related Papers:")
+            st.json(related_papers)
+        elif related_papers == [] and keywords == []:
+            st.warning("Please enter keywords first.")
+        else:
+            st.warning("Please press the button to get related papers.")
+
+        # Button to get related papers
+        get_related_papers = st.button("Get Related Papers", key="get_related_papers")
+        if get_related_papers:
+            # Call the LLM to get related papers
+            related_papers = get_related_papers(keywords)
+            if related_papers['status'] == 'fail':
+                st.error("Failed to retrieve related papers.")
+            else:
+                # Update the paper idea with the new related papers
+                update_paper_idea(paper_name, username, {"related_papers": related_papers['papers']})
+                st.success("Related papers updated successfully!")
+                st.json(related_papers['papers'])

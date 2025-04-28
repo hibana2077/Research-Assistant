@@ -56,3 +56,20 @@ def update_paper_idea(paper_name, username, new_data):
         return response.json()
     else:
         return {"status": "fail"}
+    
+def get_related_papers(keywords):
+    """
+    Get related papers based on keywords.
+    """
+    url = f"{BACKEND_SERVER}/arxiv/search"
+    payload = {
+        "query": keywords
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"status": "fail", "papers": []}
