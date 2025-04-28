@@ -245,7 +245,7 @@ async def search_arxiv(query_data: dict):
     ```
     """
     query = query_data.get("query", "")
-    arxiv = ArXivComponent(query=query, max_results=10)
+    arxiv = ArXivComponent(search_query=query, max_results=10)
     papers = arxiv.search_papers()
     
     if papers and "error" in papers[0]:
