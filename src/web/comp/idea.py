@@ -15,37 +15,27 @@ def view_paper_dialog(paper_name, username):
         if paper_data['status'] == 'fail':
             st.error("Failed to retrieve paper idea.")
             return
+        # Get current keywords if available
         keywords = paper_data['paper'].get('keywords', [])
-        if not keywords:
-            st.subheader("Setup keywords")
-
-            tmp_keywords_input = st.text_area(
-                "Please enter keywords separated by commas 👇",
-                value="",
-                key="keywords_input_form",
-            )
-            left_col, right_col = st.columns([1, 1])
-            with left_col:
-                generate_keywords = st.button("Generate Keywords", key="generate_keywords")
-            with right_col:
-                submit_button = st.button("Submit", key="submit_keywords")
-            if generate_keywords:
-                # Call the LLM to get suggested keywords
-                st.session_state['tipwords'] = llm_keywords_prompt(
-                    tmp_keywords_input.split(",")
-                )
-            if st.session_state.get('tipwords'):
-                st.info("Suggested keywords: " + ", ".join(st.session_state['tipwords']))
-            if submit_button:
-                keywords = [
-                    keyword.strip() for keyword in tmp_keywords_input.split(",")
-                ]
-                update_paper_idea(paper_name, username, {"keywords": keywords})
-                st.session_state.keywords = keywords
-                st.success("Keywords updated successfully!")
-                    
-        else:
-            st.subheader("Keywords")
-            keywords = paper_data['paper'].get('keywords', [])
-            st.write(", ".join(keywords))
+        st.subheader("Keywords Setup")
+        # Always show the text area, pre-populate if keywords exist
+        tmp_keywords_input = st.text_area(
+            "Please enter keywords separated by commas 👇",
+            value=", ".join(keywords) if keywords else "",
+            key="keywords_input_form",
+        )
+        left_col, right_col = st.columns([1, 1])
+        with left_col:
+            generate_keywords = st.button("Generate Keywords", key="generate_keywords")
+        with right_col:
+            submit_button = st.button("Submit", key="submit_keywords")
+        if generate_keywords:
+            # Call the LLM to get suggested keywords
+            st.session_state['tipwords'] = llm_keywords_prompt(tmp_keywords_input.split(","))
+        if st.session_state.get('tipwords'):
+            st.info("Suggested keywords: " + ", ".join(st.session_state['tipwords']))
+        if submit_button:
+            keywords = [keyword.strip() for keyword in tmp_keywords_input.split(",") if keyword.strip()]
+            update_paper_idea(paper_name, username, {"keywords": keywords})
             st.session_state.keywords = keywords
+            st.success("Keywords updated successfully!")
