@@ -21,13 +21,13 @@ def view_paper_dialog(paper_name, username):
         # Always show the text area, pre-populate if keywords exist
         tmp_keywords_input = st.text_area(
             "Please enter keywords separated by commas 👇",
-            value=", ".join(keywords) if keywords else "",
+            value=",".join(keywords) if keywords else "",
             key="keywords_input_form",
         )
         left_col, right_col = st.columns([1, 1])
-        with left_col:
-            generate_keywords = st.button("Generate Keywords", key="generate_keywords")
         with right_col:
+            generate_keywords = st.button("Generate Keywords", key="generate_keywords")
+        with left_col:
             submit_button = st.button("Submit", key="submit_keywords")
         if generate_keywords:
             # Call the LLM to get suggested keywords
