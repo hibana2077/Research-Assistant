@@ -11,7 +11,6 @@ def view_paper_dialog(paper_name, username):
     st.subheader(f"Paper Name: {paper_name}")
     tab1, tab2 = st.tabs(["Keyword", "TBD"])
     with tab1:
-        # st.write(f"Paper Name: {paper_name}, Username: {username}")
         paper_data = get_paper_idea(paper_name, username)
         if paper_data['status'] == 'fail':
             st.error("Failed to retrieve paper idea.")
@@ -19,17 +18,11 @@ def view_paper_dialog(paper_name, username):
         keywords = paper_data['paper'].get('keywords', [])
         if not keywords:
             st.subheader("Setup keywords")
-            # def on_change_keywords():
-            #     suggested_keywords = llm_keywords_prompt(
-            #         st.session_state["keywords_input_form"].split(",")
-            #     )
-            #     st.session_state['tipwords'] = suggested_keywords
 
             tmp_keywords_input = st.text_area(
                 "Please enter keywords separated by commas 👇",
                 value="",
                 key="keywords_input_form",
-                # on_change=on_change_keywords,
             )
             left_col, right_col = st.columns([1, 1])
             with left_col:
