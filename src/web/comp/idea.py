@@ -1,4 +1,5 @@
 import streamlit as st
+import polars as pl
 
 # from .utils.data import get_paper_idea, update_paper_idea
 from .utils.data import (
@@ -62,7 +63,8 @@ def view_paper_dialog(paper_name, username):
         # if not related_papers and keywords != none, "Please press the button to get related papers"
         if related_papers:
             st.write("Related Papers:")
-            st.json(related_papers)
+            related_papers_df = pl.DataFrame(related_papers)
+            st.dataframe(related_papers_df)
         elif related_papers == [] and keywords == []:
             st.warning("Please enter keywords first.")
         else:
@@ -79,4 +81,6 @@ def view_paper_dialog(paper_name, username):
                 # Update the paper idea with the new related papers
                 update_paper_idea(paper_name, username, {"related_papers": related_papers['papers']})
                 st.success("Related papers updated successfully!")
-                st.json(related_papers['papers'])
+                # Display the related papers in a table
+                related_papers_df = pl.DataFrame(related_papers['papers'])
+                st.dataframe(related_papers_df)
