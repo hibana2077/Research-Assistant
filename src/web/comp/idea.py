@@ -69,8 +69,8 @@ def view_paper_dialog(paper_name, username):
             st.warning("Please press the button to get related papers.")
 
         # Button to get related papers
-        get_related_papers = st.button("Get Related Papers", key="get_related_papers")
-        if get_related_papers:
+        get_related_papers_btn = st.button("Get Related Papers", key="get_related_papers")
+        if get_related_papers_btn:
             # Call the LLM to get related papers
             related_papers = get_related_papers(keywords)
             if related_papers['status'] == 'fail':
