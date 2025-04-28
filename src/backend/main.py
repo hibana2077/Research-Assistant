@@ -4,6 +4,7 @@ import uvicorn
 import pymongo
 import numpy as np
 import pandas as pd
+import logging
 from pprint import pprint
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy import create_engine, Column, String, Integer
@@ -11,6 +12,9 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
 
 # self-defined imports
 from utils.arxiv import ArXivComponent
@@ -248,6 +252,10 @@ async def search_arxiv(query_data: dict):
     arxiv = ArXivComponent(search_query=query, max_results=10)
     papers = arxiv.search_papers()
     
+    # logging
+    logging.info(f"Searching arXiv for: {query}")
+    logging.info(f"Found {len(papers)} papers:")
+
     if papers and "error" in papers[0]:
         raise HTTPException(status_code=400, detail=papers[0]["error"])
     
