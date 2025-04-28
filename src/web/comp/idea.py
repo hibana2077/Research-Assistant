@@ -8,6 +8,7 @@ from .utils.llm import llm_keywords_prompt
 
 @st.dialog("View Paper Idea")
 def view_paper_dialog(paper_name, username):
+    st.subheader(f"Paper Name: {paper_name}")
     tab1, tab2 = st.tabs(["Keyword", "TBD"])
     with tab1:
         # st.write(f"Paper Name: {paper_name}, Username: {username}")
