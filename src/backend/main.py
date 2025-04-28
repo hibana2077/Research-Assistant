@@ -248,7 +248,8 @@ async def search_arxiv(query_data: dict):
     curl -X POST "http://localhost:8081/arxiv/search" -H "Content-Type: application/json" -d '{"query":"graph neural networks, uncertainty quantification"}'
     ```
     """
-    query = query_data.get("query", "")
+    meta_query_list: list[str] = query_data.get("query", [])
+    query = ', '.join(list(keyword.strip() for keyword in meta_query_list))
     arxiv = ArXivComponent(search_query=query, max_results=10)
     papers = arxiv.search_papers()
     
