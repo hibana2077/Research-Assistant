@@ -1,12 +1,16 @@
 import os
 import json
 import uvicorn
+import logging
 import pymongo
+import tempfile
 import numpy as np
 import pandas as pd
-import logging
 from pprint import pprint
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from docling.document_converter import DocumentConverter
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.responses import StreamingResponse
 from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
@@ -18,6 +22,8 @@ logging.basicConfig(level=logging.INFO)
 
 # self-defined imports
 from utils.arxiv import ArXivComponent
+from utils.download import download_arxiv_pdf
+from utils.sse import make_sse_message
 
 # 常數設定，從環境變數中讀取設定
 HOST = os.getenv("HOST", "127.0.0.1")
@@ -261,6 +267,90 @@ async def search_arxiv(query_data: dict):
         raise HTTPException(status_code=400, detail=papers[0]["error"])
     
     return {"status": "success", "papers": papers}
+
+async def create_embedding_event_generator(data:dict):
+    """
+    Create an embedding for the database.
+    ```json
+    {
+        "paper_name": "paper_name",
+        "username": "username"
+    }
+    ```
+    """
+    # Load the paper data
+    yield make_sse_message("Loading paper data...")
+    paper_name = data.get("paper_name")
+    username = data.get("username")
+    if not paper_name or not username:
+        raise HTTPException(status_code=400, detail="Paper name and username are required")
+    yield make_sse_message("Loading paper data done.")
+    
+
+    # Get the paper data from MongoDB
+    yield make_sse_message("Loading paper data from MongoDB...")
+    mongo_db = mongo_client["papers_db"]
+    papers_collection = mongo_db["papers"]
+    paper_data = papers_collection.find_one({"paper_name": paper_name, "username": username}, { "_id": 0})
+    if not paper_data:
+        raise HTTPException(status_code=404, detail="Paper not found")
+    yield make_sse_message("Loading paper data from MongoDB done.")
+
+    # Get related papers
+    yield make_sse_message("Loading related papers...")
+    related_papers = paper_data.get("related_papers", [])
+    if not related_papers:
+        raise HTTPException(status_code=400, detail="No related papers found")
+    yield make_sse_message("Loading related papers done.")
+    
+    # Download the related papers
+    yield make_sse_message("Downloading related papers...")
+    pdf_urls = [paper["pdf_url"] for paper in related_papers]
+    temp_dir = tempfile.mkdtemp()
+    for idx,pdf_url in enumerate(pdf_urls):
+        yield make_sse_message(f"Downloading related paper {idx+1}/{len(pdf_urls)}...")
+        download_arxiv_pdf(pdf_url, save_root_dir=temp_dir)
+    yield make_sse_message("Downloading related papers done.")
+
+    # Using Docling to convert pdf to markdown
+    yield make_sse_message("Converting pdf to markdown...")
+    converter = DocumentConverter()
+    # result = converter.convert(source)
+    # result.document.export_to_markdown()
+    markdowns = []
+    pdfs = [os.path.join(temp_dir, pdf) for pdf in os.listdir(temp_dir) if pdf.endswith(".pdf")]
+    for pdf in pdfs:
+        yield make_sse_message(f"Converting {pdf} to markdown...")
+        result = converter.convert(pdf)
+        markdowns.append(result.document.export_to_markdown())
+    yield make_sse_message("Converting pdf to markdown done.")
+
+    # Chunk
+    yield make_sse_message("Chunking markdown...")
+    text_splitter = RecursiveCharacterTextSplitter( # TODO: need reevaluate
+        # Set a really small chunk size, just to show.
+        chunk_size=100, # TODO: ref to cfg.context_length.FASTEMBED_MODELS
+        chunk_overlap=350,
+        length_function=len,
+        is_separator_regex=False,
+    )
+
+@app.post("/embedding/create")
+async def create_embedding(data: dict):
+    """
+    Create an embedding for the database.
+    ## Structure:
+    ```json
+    {
+        "paper_name": "paper_name",
+        "username": "username"
+    }
+    ```
+    """
+    return StreamingResponse(
+        create_embedding_event_generator(data),
+        media_type="text/event-stream",
+    )
 
 if __name__ == "__main__":
     uvicorn.run(app, host=HOST, port=8081)

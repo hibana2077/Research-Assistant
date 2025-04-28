@@ -40,3 +40,8 @@ def download_arxiv_pdf(pdf_url, save_root_dir=None):
     except requests.exceptions.RequestException as e:
         print(f"Error downloading PDF: {e}")
         return None
+    
+if __name__ == "__main__":
+    # Example usage
+    pdf_url = "http://arxiv.org/pdf/1809.10784v1"
+    download_arxiv_pdf(pdf_url, save_root_dir="papers")

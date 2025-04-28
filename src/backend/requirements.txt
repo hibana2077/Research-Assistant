@@ -10,7 +10,9 @@ transformers
 qdrant-client
 faiss-cpu
 voyageai
-magic-pdf[full]
 huggingface_hub
 pandas
 defusedxml
+docling
+langchain
+langchain-text-splitters

@@ -73,3 +73,21 @@ def get_related_papers(keywords):
         return response.json()
     else:
         return {"status": "fail", "papers": []}
+    
+def get_vector_search(paper_name:str, username:str): # TODO
+    """
+    Get vector search for a paper.
+    """
+    url = f"{BACKEND_SERVER}/papers/get_vector_search"
+    payload = {
+        "paper_name": paper_name,
+        "username": username
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"status": "fail", "vector_search": []}

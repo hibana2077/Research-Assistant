@@ -6,12 +6,13 @@ from .utils.data import (
     get_paper_idea,
     update_paper_idea,
     get_related_papers,
+    get_vector_search,
 )
 from .utils.llm import llm_keywords_prompt
 
 @st.dialog("View Paper Idea")
 def view_paper_dialog(paper_name, username):
-    tab1, tab2 = st.tabs(["Keyword", "Related Papers"])
+    tab1, tab2, tab3 = st.tabs(["Keyword", "Related Papers", "Vector Search"])
     # Tab 1: Keywords
     with tab1:
         paper_data = get_paper_idea(paper_name, username)
@@ -84,3 +85,32 @@ def view_paper_dialog(paper_name, username):
                 # Display the related papers in a table
                 related_papers_df = pl.DataFrame(related_papers['papers'])
                 st.dataframe(related_papers_df)
+    # Tab 3: Vector Search
+    with tab3:
+        st.subheader("Vector Search")
+        # Get data
+        paper_data = get_paper_idea(paper_name, username)
+        if paper_data['status'] == 'fail':
+            st.error("Failed to retrieve vector search.")
+            return
+        keywords = paper_data['paper'].get('keywords', [])
+        vector_search = paper_data['paper'].get('vector_search', []) #collection nam, length should be 2, ['abstract_vec_timstamp', 'fulltext_vec_timestamp']
+
+        # if keywords == none, "please enter keywords first"
+        if not keywords:
+            st.warning("Please enter keywords first.")
+            return
+        # Display vector search
+        # if vector_search, display them
+        # if not vector_search and keywords != none, "Please press the button to get vector search"
+        if vector_search:
+            st.write("Vector Search:")
+            st.json(vector_search)
+        elif vector_search == [] and keywords == []:
+            st.warning("Please enter keywords first.")
+        else:
+            st.warning("Please press the button to get vector search.")
+
+        # Button to get vector search
+        get_vector_search_btn = st.button("Get Vector Search", key="get_vector_search")
+        

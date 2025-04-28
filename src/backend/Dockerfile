@@ -15,8 +15,6 @@ RUN uv pip install --system --no-cache-dir -r /app/requirements.txt
 
 COPY . /app
 
-RUN python3 utils/download_models_hf.py
-
 EXPOSE 8081
 
 CMD ["python3", "main.py"]
