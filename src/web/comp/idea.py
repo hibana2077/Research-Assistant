@@ -1,7 +1,4 @@
-import os
-import requests
 import streamlit as st
-import streamlit_tags
 
 from .utils.data import get_paper_idea, update_paper_idea
 from .utils.llm import llm_keywords_prompt
@@ -9,7 +6,8 @@ from .utils.llm import llm_keywords_prompt
 @st.dialog("View Paper Idea")
 def view_paper_dialog(paper_name, username):
     st.subheader(f"Paper Name: {paper_name}")
-    tab1, tab2 = st.tabs(["Keyword", "TBD"])
+    tab1, tab2 = st.tabs(["Keyword", "Related Papers"])
+    # Tab 1: Keywords
     with tab1:
         paper_data = get_paper_idea(paper_name, username)
         if paper_data['status'] == 'fail':
@@ -39,3 +37,8 @@ def view_paper_dialog(paper_name, username):
             update_paper_idea(paper_name, username, {"keywords": keywords})
             st.session_state.keywords = keywords
             st.success("Keywords updated successfully!")
+            st.session_state['tipwords'] = None
+    # Tab 2: Related Papers
+    with tab2:
+        st.subheader("Related Papers")
+        
