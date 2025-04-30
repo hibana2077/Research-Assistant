@@ -18,3 +18,4 @@ docling
 langchain
 langchain-text-splitters
 ollama
+openai
