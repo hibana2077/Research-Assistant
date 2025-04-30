@@ -24,6 +24,8 @@ logging.basicConfig(level=logging.INFO)
 from utils.arxiv import ArXivComponent
 from utils.download import download_arxiv_pdf
 from utils.sse import make_sse_message
+from utils.embed import get_text_embedding
+from utils.vectorstores import create_qd_collection, insert_qd_collection, search_qd_collection
 
 # self-defined config
 from cfg.emb import FASTEMBED_MODELS, OPENAI_EMB_MODELS, VOYAGEAI_EMB_MODELS
@@ -40,6 +42,7 @@ EMBEDDING_PROVIDER = os.getenv("EMBEDDING_PROVIDER", "fastembed")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "BAAI/bge-large-en-v1.5")
 EMBEDDING_PROVIDER_API_KEY = os.getenv("EMBEDDING_PROVIDER_API_KEY", "your_embedding_provider_api_key")
 EMBEDDING_PROVIDER_URL = os.getenv("EMBEDDING_PROVIDER_URL", "https://api.openai.com/v1/embeddings")
+QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 
 # 設定SQLAlchemy
 Base = declarative_base()
@@ -310,10 +313,19 @@ async def create_embedding_event_generator(data:dict):
     yield make_sse_message("Downloading related papers...")
     pdf_urls = [paper["pdf_url"] for paper in related_papers]
     temp_dir = tempfile.mkdtemp()
-    for idx,pdf_url in enumerate(pdf_urls):
+    for idx, pdf_url in enumerate(pdf_urls):
         yield make_sse_message(f"Downloading related paper {idx+1}/{len(pdf_urls)}...")
         download_arxiv_pdf(pdf_url, save_root_dir=temp_dir)
     yield make_sse_message("Downloading related papers done.")
+
+    # Extract summary from related_papers
+    yield make_sse_message("Extracting summary from related papers...")
+    summaries = [] # list[str]
+    for idx, paper in enumerate(related_papers):
+        yield make_sse_message(f"Extracting summary from related paper {idx+1}/{len(related_papers)}...")
+        summary = paper.get("summary", "")
+        summaries.append(summary)
+    yield make_sse_message("Extracting summary from related papers done.")
 
     # Using Docling to convert pdf to markdown
     yield make_sse_message("Converting pdf to markdown...")
@@ -333,25 +345,75 @@ async def create_embedding_event_generator(data:dict):
     #     chunk_size=100, # TODO: ref to cfg.context_length.FASTEMBED_MODELS
     if EMBEDDING_PROVIDER == "fastembed":
         chunk_size = [int(it['context_length']) for it in FASTEMBED_MODELS if it['model'] == EMBEDDING_MODEL] or [256]
+        vector_size = [int(it['dim']) for it in FASTEMBED_MODELS if it['model'] == EMBEDDING_MODEL] or [768]
     elif EMBEDDING_PROVIDER == "openai":
         chunk_size = [int(it['context_length']) for it in OPENAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL] or [2048]
+        vector_size = [int(it['dim']) for it in OPENAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL] or [1536]
     elif EMBEDDING_PROVIDER == "voyageai":
         chunk_size = [int(it['context_length']) for it in VOYAGEAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL] or [16000]
+        vector_size = [int(it['dim']) for it in VOYAGEAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL] or [1536]
     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
         encoding_name="o200k_base", chunk_size=chunk_size[0], chunk_overlap=200
     )
     # for loop: chunking
-    chuncked_markdowns = []
+    chuncked_markdowns = [] # List[List[str]]
     for idx, markdown in enumerate(markdowns):
         yield make_sse_message(f"Chunking {idx+1}/{len(markdowns)}...")
         chunks = text_splitter.split_text(markdown)
         chuncked_markdowns.extend(chunks)
     yield make_sse_message(f"Chunking done. Total chunks: {len(chuncked_markdowns)}")
     
-    # Create embedding
+    # Create embedding(full paper)
     yield make_sse_message("Creating embedding...")
-    
-    return chuncked_markdowns
+    full_paper_embeddings = []
+    for idx, chunk in enumerate(chuncked_markdowns):
+        yield make_sse_message(f"Creating embedding {idx+1}/{len(chuncked_markdowns)}...")
+        embedding = get_text_embedding(chunk)
+        full_paper_embeddings.append(embedding)
+    yield make_sse_message("Creating embedding done.")
+
+    # Create embedding(summary)
+    yield make_sse_message("Creating embedding for summary...")
+    summary_embeddings = []
+    for idx, summary in enumerate(summaries):
+        yield make_sse_message(f"Creating embedding for summary {idx+1}/{len(summaries)}...")
+        embedding = get_text_embedding(summary)
+        summary_embeddings.append(embedding)
+    yield make_sse_message("Creating embedding for summary done.")
+
+    # Create Qdrant collection
+    yield make_sse_message("Creating Qdrant collection...")
+    full_paper_coll_name = f"full_paper_collection_{datetime.utcnow().isoformat()}"
+    summary_coll_name = f"summary_collection_{datetime.utcnow().isoformat()}"
+    # update to mongo
+    papers_collection.update_one({"paper_name": paper_name, "username": username}, {"$set": {"full_paper_coll_name": full_paper_coll_name, "summary_coll_name": summary_coll_name}})
+    # create qd_client and collection(full_paper)
+    qd_client = create_qd_collection(QDRANT_URL, full_paper_coll_name, vector_size[0])
+    full_paper_saving_data = {
+        "vectors": full_paper_embeddings,
+        "payload": [{"text": chunk} for chunk in chuncked_markdowns]
+    }
+    # insert collection(full_paper) to qd_client
+    insert_qd_collection(qd_client, full_paper_coll_name, full_paper_saving_data)
+    # create qd_client and collection(summary)
+    qd_client = create_qd_collection(QDRANT_URL, summary_coll_name, vector_size[0])
+    summary_saving_data = {
+        "vectors": summary_embeddings,
+        "payload": [{"text": summary} for summary in summaries]
+    }
+    # insert collection(summary) to qd_client
+    insert_qd_collection(qd_client, summary_coll_name, summary_saving_data)
+    yield make_sse_message("Creating Qdrant collection done.")
+
+    # Clean up
+    for pdf in pdfs:
+        os.remove(pdf)
+    os.rmdir(temp_dir)
+    yield make_sse_message("Clean up done.")
+
+    yield make_sse_message("[DONE]")
+
+    return {"status": "success", "message": "Embedding created successfully"}
 
 @app.post("/papers/get_emb_index")
 async def get_emb_index(data: dict):
