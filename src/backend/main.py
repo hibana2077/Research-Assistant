@@ -413,7 +413,7 @@ async def create_embedding_event_generator(data:dict):
 
     yield make_sse_message("[DONE]")
 
-    return {"status": "success", "message": "Embedding created successfully"}
+    return
 
 @app.post("/papers/get_emb_index")
 async def get_emb_index(data: dict):
