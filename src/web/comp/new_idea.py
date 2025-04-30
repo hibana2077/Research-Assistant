@@ -28,7 +28,7 @@ def new_idea(data:dict):
         st.error(f"Error: {response.status_code} - {response.text}")
         return None
 
-@st.dialog("New Knowledge Base")
+@st.dialog("New Paper Idea")
 def new_idea_dialog():
     name = st.text_input("New idea Name", max_chars=20)
     desc = st.text_input("Description")
