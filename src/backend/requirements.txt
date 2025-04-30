@@ -17,3 +17,4 @@ defusedxml
 docling
 langchain
 langchain-text-splitters
+ollama
