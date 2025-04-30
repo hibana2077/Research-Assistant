@@ -335,10 +335,10 @@ async def create_embedding_event_generator(data:dict):
         is_separator_regex=False,
     )
 
-@app.post("/embedding/create")
-async def create_embedding(data: dict):
+@app.post("/papers/get_emb_index")
+async def get_emb_index(data: dict):
     """
-    Create an embedding for the database.
+    Get embedding index for a paper.
     ## Structure:
     ```json
     {

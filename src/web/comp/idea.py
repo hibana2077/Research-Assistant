@@ -6,13 +6,13 @@ from .utils.data import (
     get_paper_idea,
     update_paper_idea,
     get_related_papers,
-    get_vector_search,
+    get_emb_index,
 )
 from .utils.llm import llm_keywords_prompt
 
 @st.dialog("View Paper Idea")
 def view_paper_dialog(paper_name, username):
-    tab1, tab2, tab3 = st.tabs(["Keyword", "Related Papers", "Vector Search"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Keyword", "Related Papers", "Embedding", "Generator", "Result"])
     # Tab 1: Keywords
     with tab1:
         paper_data = get_paper_idea(paper_name, username)
@@ -85,32 +85,32 @@ def view_paper_dialog(paper_name, username):
                 # Display the related papers in a table
                 related_papers_df = pl.DataFrame(related_papers['papers'])
                 st.dataframe(related_papers_df)
-    # Tab 3: Vector Search
+    # Tab 3: Embedding
     with tab3:
-        st.subheader("Vector Search")
+        st.subheader("Embedding Index")
         # Get data
         paper_data = get_paper_idea(paper_name, username)
         if paper_data['status'] == 'fail':
-            st.error("Failed to retrieve vector search.")
+            st.error("Failed to retrieve Embedding Index.")
             return
         keywords = paper_data['paper'].get('keywords', [])
-        vector_search = paper_data['paper'].get('vector_search', []) #collection nam, length should be 2, ['abstract_vec_timstamp', 'fulltext_vec_timestamp']
+        emb_index = paper_data['paper'].get('emb_index', []) #collection nam, length should be 2, ['abstract_vec_timstamp', 'fulltext_vec_timestamp']
 
         # if keywords == none, "please enter keywords first"
         if not keywords:
             st.warning("Please enter keywords first.")
             return
-        # Display vector search
-        # if vector_search, display them
-        # if not vector_search and keywords != none, "Please press the button to get vector search"
-        if vector_search:
-            st.write("Vector Search:")
-            st.json(vector_search)
-        elif vector_search == [] and keywords == []:
+        # Display Embedding
+        # if emb_index, display them
+        # if not emb_index and keywords != none, "Please press the button to get Embedding"
+        if emb_index:
+            st.write("Embedding:")
+            st.json(emb_index)
+        elif emb_index == [] and keywords == []:
             st.warning("Please enter keywords first.")
         else:
-            st.warning("Please press the button to get vector search.")
+            st.warning("Please press the button to get Embedding.")
 
-        # Button to get vector search
-        get_vector_search_btn = st.button("Get Vector Search", key="get_vector_search")
+        # Button to get Embedding
+        get_emb_index_btn = st.button("Get Embedding", key="get_emb_index")
         

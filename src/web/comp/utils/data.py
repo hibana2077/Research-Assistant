@@ -74,11 +74,11 @@ def get_related_papers(keywords):
     else:
         return {"status": "fail", "papers": []}
     
-def get_vector_search(paper_name:str, username:str): # TODO
+def get_emb_index(paper_name:str, username:str): # TODO
     """
-    Get vector search for a paper.
+    Get embedding index for a paper.
     """
-    url = f"{BACKEND_SERVER}/papers/get_vector_search"
+    url = f"{BACKEND_SERVER}/papers/get_emb_index"
     payload = {
         "paper_name": paper_name,
         "username": username
