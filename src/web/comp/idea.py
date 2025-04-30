@@ -113,4 +113,5 @@ def view_paper_dialog(paper_name, username):
 
         # Button to get Embedding
         get_emb_index_btn = st.button("Get Embedding", key="get_emb_index")
-        
+        if get_emb_index_btn:
+            pass # TODO
