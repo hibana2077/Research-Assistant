@@ -4,4 +4,3 @@ requests
 pandas
 polars
 openai
-streamlit-tags

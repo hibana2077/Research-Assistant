@@ -7,7 +7,7 @@ import tempfile
 import numpy as np
 import pandas as pd
 from pprint import pprint
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import CharacterTextSplitter
 from docling.document_converter import DocumentConverter
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import StreamingResponse
@@ -24,6 +24,9 @@ logging.basicConfig(level=logging.INFO)
 from utils.arxiv import ArXivComponent
 from utils.download import download_arxiv_pdf
 from utils.sse import make_sse_message
+
+# self-defined config
+from cfg.emb import FASTEMBED_MODELS, OPENAI_EMB_MODELS, VOYAGEAI_EMB_MODELS
 
 # 常數設定，從環境變數中讀取設定
 HOST = os.getenv("HOST", "127.0.0.1")
@@ -315,8 +318,6 @@ async def create_embedding_event_generator(data:dict):
     # Using Docling to convert pdf to markdown
     yield make_sse_message("Converting pdf to markdown...")
     converter = DocumentConverter()
-    # result = converter.convert(source)
-    # result.document.export_to_markdown()
     markdowns = []
     pdfs = [os.path.join(temp_dir, pdf) for pdf in os.listdir(temp_dir) if pdf.endswith(".pdf")]
     for pdf in pdfs:
@@ -327,13 +328,30 @@ async def create_embedding_event_generator(data:dict):
 
     # Chunk
     yield make_sse_message("Chunking markdown...")
-    text_splitter = RecursiveCharacterTextSplitter( # TODO: need reevaluate
-        # Set a really small chunk size, just to show.
-        chunk_size=100, # TODO: ref to cfg.context_length.FASTEMBED_MODELS
-        chunk_overlap=350,
-        length_function=len,
-        is_separator_regex=False,
+    # text_splitter = CharacterTextSplitter( # TODO: need reevaluate
+    #     # Set a really small chunk size, just to show.
+    #     chunk_size=100, # TODO: ref to cfg.context_length.FASTEMBED_MODELS
+    if EMBEDDING_PROVIDER == "fastembed":
+        chunk_size = [int(it['context_length']) for it in FASTEMBED_MODELS if it['model'] == EMBEDDING_MODEL] or [256]
+    elif EMBEDDING_PROVIDER == "openai":
+        chunk_size = [int(it['context_length']) for it in OPENAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL] or [2048]
+    elif EMBEDDING_PROVIDER == "voyageai":
+        chunk_size = [int(it['context_length']) for it in VOYAGEAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL] or [16000]
+    text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+        encoding_name="o200k_base", chunk_size=chunk_size[0], chunk_overlap=200
     )
+    # for loop: chunking
+    chuncked_markdowns = []
+    for idx, markdown in enumerate(markdowns):
+        yield make_sse_message(f"Chunking {idx+1}/{len(markdowns)}...")
+        chunks = text_splitter.split_text(markdown)
+        chuncked_markdowns.extend(chunks)
+    yield make_sse_message(f"Chunking done. Total chunks: {len(chuncked_markdowns)}")
+    
+    # Create embedding
+    yield make_sse_message("Creating embedding...")
+    
+    return chuncked_markdowns
 
 @app.post("/papers/get_emb_index")
 async def get_emb_index(data: dict):
