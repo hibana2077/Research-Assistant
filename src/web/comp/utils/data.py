@@ -65,18 +65,34 @@ def get_related_papers(keywords):
     """
     Get related papers based on keywords.
     """
+    return_data = {
+        "status": "fail",
+        "papers": []
+    }
     url = f"{BACKEND_SERVER}/arxiv/search"
-    payload = {
-        "query": keywords
-    }
-    headers = {
-        "Content-Type": "application/json"
-    }
-    response = requests.post(url, json=payload, headers=headers)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return {"status": "fail", "papers": []}
+    
+    # 將關鍵字字串分割成列表，並包含原始關鍵字字串
+    keyword_list = [keywords] + [k.strip() for k in keywords.split(",")]
+    
+    for keyword in keyword_list:
+        payload_list = [{
+            "query": keyword
+        }]
+        headers = {
+            "Content-Type": "application/json"
+        }
+        response = requests.post(url, json=payload_list, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            if data['status'] == 'success':
+                return_data['status'] = 'success'
+                return_data['papers'].extend(data['papers'])
+            else:
+                return_data['status'] = 'fail'
+        else:
+            return_data['status'] = 'fail'
+
+    return return_data
 
 def get_emb_index(paper_name: str, username: str):
     """

@@ -141,6 +141,7 @@ def view_paper_dialog(paper_name, username):
             return
         
         # paper generator steps
-        ## 1. Describe the way(like TL;DR section)(here can use llm to generate that based on keywords)
+        ## 1. Describe the way(like TL;DR section and paper title)(here can use llm to generate that based on keywords)
+        ## 1.5. Novelty check
         ## 2. Search the embedding(embedding the texts from steps 1)
         ## 3. Generate the Abstract

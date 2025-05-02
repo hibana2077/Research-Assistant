@@ -263,7 +263,7 @@ async def search_arxiv(query_data: dict):
     ```
     """
     meta_query_list: list[str] = query_data.get("query", [])
-    max_results: int = query_data.get("max_results", 3)
+    max_results: int = query_data.get("max_results", 5)
     query = ', '.join(list(keyword.strip() for keyword in meta_query_list))
     arxiv = ArXivComponent(search_query=query, max_results=max_results)
     papers = arxiv.search_papers()
