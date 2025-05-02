@@ -77,9 +77,9 @@ def get_related_papers(keywords):
     # 將關鍵字字串分割成列表，並包含原始關鍵字字串
     keyword_list = [keywords] + [k.strip() for k in keywords]
     for keyword in keyword_list:
-        payload_list = [{
-            "query": keyword
-        }]
+        payload_list = {
+            "query": keyword,
+        }
         headers = {
             "Content-Type": "application/json"
         }
