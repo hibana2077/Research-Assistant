@@ -3,7 +3,10 @@ from httpx_sse import connect_sse
 import os
 import json
 import requests
+import logging
 import streamlit as st
+
+logging.basicConfig(level=logging.INFO)
 
 BACKEND_SERVER = os.getenv("BACKEND_SERVER", "http://localhost:8000")
 
@@ -73,7 +76,6 @@ def get_related_papers(keywords):
     
     # 將關鍵字字串分割成列表，並包含原始關鍵字字串
     keyword_list = [keywords] + [k.strip() for k in keywords]
-    print(keyword_list)
     for keyword in keyword_list:
         payload_list = [{
             "query": keyword
@@ -82,6 +84,7 @@ def get_related_papers(keywords):
             "Content-Type": "application/json"
         }
         response = requests.post(url, json=payload_list, headers=headers)
+        logging.info(f"Response status code: {response.status_code}")
         if response.status_code == 200:
             data = response.json()
             if data['status'] == 'success':
