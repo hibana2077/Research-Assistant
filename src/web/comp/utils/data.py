@@ -73,7 +73,7 @@ def get_related_papers(keywords):
     
     # 將關鍵字字串分割成列表，並包含原始關鍵字字串
     keyword_list = [keywords] + [k.strip() for k in keywords]
-    
+    print(keyword_list)
     for keyword in keyword_list:
         payload_list = [{
             "query": keyword
@@ -92,6 +92,7 @@ def get_related_papers(keywords):
         else:
             return_data['status'] = 'fail'
 
+    print(return_data)
     return return_data
 
 def get_emb_index(paper_name: str, username: str):
