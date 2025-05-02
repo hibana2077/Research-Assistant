@@ -125,3 +125,22 @@ def view_paper_dialog(paper_name, username):
             status = result['status']
             if status == "success":
                 st.success("Embedding updated successfully!")
+
+    # Tab 4: Generator
+    with tab4:
+        st.subheader("Generator")
+        # Get data
+        paper_data = get_paper_idea(paper_name, username)
+        if paper_data['status'] == 'fail':
+            st.error("Failed to retrieve paper idea.")
+            return
+        emb_index = paper_data['paper'].get('emb_index', [])
+        # if emb_index == none, "please press the button to get Embedding"
+        if not emb_index:
+            st.warning("Please finish the previous step first.")
+            return
+        
+        # paper generator steps
+        ## 1. Describe the way(like TL;DR section)(here can use llm to generate that based on keywords)
+        ## 2. Search the embedding(embedding the texts from steps 1)
+        ## 3. Generate the Abstract
