@@ -284,6 +284,7 @@ async def create_embedding_event_generator(data:dict):
     }
     ```
     """
+    logging.info("Creating embedding...")
     # Load the paper data
     yield make_sse_message("Loading paper data...")
     paper_name = data.get("paper_name")
@@ -293,6 +294,7 @@ async def create_embedding_event_generator(data:dict):
     yield make_sse_message("Loading paper data done.")
     
 
+    logging.info(f"paper_name: {paper_name}, username: {username}")
     # Get the paper data from MongoDB
     yield make_sse_message("Loading paper data from MongoDB...")
     mongo_db = mongo_client["papers_db"]
@@ -302,6 +304,7 @@ async def create_embedding_event_generator(data:dict):
         raise HTTPException(status_code=404, detail="Paper not found")
     yield make_sse_message("Loading paper data from MongoDB done.")
 
+    logging.info(f"Get related papers from MongoDB")
     # Get related papers
     yield make_sse_message("Loading related papers...")
     related_papers = paper_data.get("related_papers", [])
