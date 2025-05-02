@@ -108,13 +108,12 @@ def view_paper_dialog(paper_name, username):
         # if emb_index, display them
         # if not emb_index and keywords != none, "Please press the button to get Embedding"
         if emb_index:
-            TABLE_TEXT = """| Collection Name | segments_count | points_count |\n| --- | --- | --- |\n"""
+            TABLE_TEXT = """| Collection Name | points_count |\n| --- | --- | --- |\n"""
 
             for index in emb_index:
                 collection_info = get_emb_col_info(index)
-                segments_count = collection_info.get("segments_count", 0)
                 points_count = collection_info.get("points_count", 0)
-                TABLE_TEXT += f"| {index} | {segments_count} | {points_count} |\n"
+                TABLE_TEXT += f"| {index} | {points_count} |\n"
             st.markdown(TABLE_TEXT)
         elif emb_index == [] and keywords == []:
             st.warning("Please enter keywords first.")
