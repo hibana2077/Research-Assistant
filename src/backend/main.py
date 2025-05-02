@@ -407,7 +407,12 @@ async def create_embedding_event_generator(data:dict):
     qd_client = create_qd_collection(QDRANT_URL, full_paper_coll_name, vector_size[0])
     logging.info(f"Full paper embedding length: {len(full_paper_embeddings)}")
     logging.info(f"Full paper chunked_markdowns length: {len(chuncked_markdowns)}")
-    logging.info(f"Full paper embedding shape: {np.array(full_paper_embeddings).shape}")
+    logging.info(f"Full paper embedding shape: {np.array(full_paper_embeddings).shape}") # (N, 1, 768) -> (N, 768)
+    # convert to numpy array
+    full_paper_embeddings = np.array(full_paper_embeddings).reshape(-1, vector_size[0])
+    logging.info(f"Full paper embedding shape: {full_paper_embeddings.shape}") # (N, 768)
+    # convert to list
+    full_paper_embeddings = full_paper_embeddings.tolist()
     full_paper_saving_data = {
         "vectors": full_paper_embeddings,
         "payload": [{"text": chunk} for chunk in chuncked_markdowns]
