@@ -104,8 +104,6 @@ def view_paper_dialog(paper_name, username):
         # if emb_index, display them
         # if not emb_index and keywords != none, "Please press the button to get Embedding"
         if emb_index:
-            st.write("Embedding:")
-            # st.json(emb_index)# list of strings
             TABLE_TEXT = """| Collection Name | segments_count | points_count |\n| --- | --- | --- |\n"""
 
             for index in emb_index:
