@@ -9,7 +9,11 @@ from .utils.data import (
     get_emb_index,
     get_emb_col_info
 )
-from .utils.llm import llm_keywords_prompt
+from .utils.llm import (
+    llm_keywords_prompt,
+    llm_paper_title_prompt,
+    llm_tldr_prompt,
+)
 
 @st.dialog("View Paper Idea")
 def view_paper_dialog(paper_name, username):
@@ -140,8 +144,28 @@ def view_paper_dialog(paper_name, username):
             st.warning("Please finish the previous step first.")
             return
         
+        generator_data = paper_data['paper'].get('generator', {})
+        
         # paper generator steps
         ## 1. Describe the way(like TL;DR section and paper title)(here can use llm to generate that based on keywords)
+        st.subheader("Describe the way")
+        paper_title = st.text_input(
+            "Please enter the title of the paper",
+            value=generator_data.get('paper_title', ""),
+            key="paper_title_input_form",
+        )
+        tldr = st.text_area(
+            "Please enter the TL;DR section of the paper",
+            value=generator_data.get('tldr', ""),
+            key="tl_dr_input_form",
+        )
+        left_col, mid_col, right_col = st.columns([1, 1, 1])
+        with left_col:
+            suggest_paper_title = st.button("Suggest Paper Title", key="suggest_paper_title")
+        with mid_col:
+            suggest_tldr = st.button("Suggest TL;DR", key="suggest_tldr")
+        with right_col:
+            save_section1 = st.button("Save", key="save_section1")
         ## 1.5. Novelty check
         ## 2. Search the embedding(embedding the texts from steps 1)
         ## 3. Generate the Abstract
