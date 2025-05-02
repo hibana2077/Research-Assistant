@@ -80,7 +80,7 @@ def view_paper_dialog(paper_name, username):
         if get_related_papers_btn:
             # Call the LLM to get related papers
             print(keywords)
-            print("Fetching related papers for keywords:", keywords)
+            st.info("Fetching related papers for keywords:", keywords)
             related_papers = get_related_papers(keywords)
             if related_papers['status'] == 'fail':
                 st.error("Failed to retrieve related papers.")
