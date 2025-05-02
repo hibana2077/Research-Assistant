@@ -2,7 +2,6 @@ import os
 from typing import Optional
 import requests
 
-
 def download_arxiv_pdf(
     pdf_url: str,
     save_root_dir: Optional[str] = None,
