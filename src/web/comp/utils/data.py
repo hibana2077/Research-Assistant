@@ -92,9 +92,8 @@ def get_emb_index(paper_name: str, username: str):
         # 使用 httpx.Client 建立連線
         with httpx.Client(timeout=None) as client: # timeout=None 避免長時間操作超時
             # 使用 connect_sse 建立 SSE 連線
-            # 注意：雖然 SSE 通常用 GET，但你的後端是 POST，所以這裡用 "POST"
             # httpx_sse 支援傳遞 json 參數
-            with connect_sse(client, "POST", url, json=payload) as event_source:
+            with connect_sse(client, "GET", url, json=payload) as event_source:
                 # 檢查 HTTP 狀態碼 (httpx_sse 會在連線失敗時拋出異常)
                 # event_source.response.raise_for_status() # httpx_sse < 0.4.0
                 # For httpx_sse >= 0.4.0, errors are raised during connect_sse
