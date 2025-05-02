@@ -95,7 +95,6 @@ def get_related_papers(keywords):
         else:
             return_data['status'] = 'fail'
 
-    print(return_data)
     return return_data
 
 def get_emb_index(paper_name: str, username: str):
