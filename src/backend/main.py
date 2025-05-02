@@ -418,7 +418,7 @@ async def create_embedding_event_generator(data:dict):
 
     return
 
-@app.post("/papers/get_emb_index")
+@app.get("/papers/get_emb_index")
 async def get_emb_index(data: dict):
     """
     Get embedding index for a paper.

@@ -87,11 +87,10 @@ def get_emb_index(paper_name: str, username: str):
         "username": username
     }
     # SSE 通常用 GET，但 FastAPI 這裡是 POST，所以用 stream=True
-    response = requests.post(url, json=payload, stream=True)
-    if response.status_code != 200:
-        return {"status": "fail", "vector_search": []}
+    response = requests.get(url, json=payload, stream=True)
+    response.raise_for_status()
 
-    client = sseclient.SSEClient(response.raw)
+    client = sseclient.SSEClient(response)
     results = []
     for event in client.events():
         # event.data 會是每次 yield 的訊息
