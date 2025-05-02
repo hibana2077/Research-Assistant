@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import uvicorn
 import logging
 import pymongo
@@ -319,6 +320,7 @@ async def create_embedding_event_generator(data:dict):
     for idx, pdf_url in enumerate(pdf_urls):
         yield make_sse_message(f"Downloading related paper {idx+1}/{len(pdf_urls)}...")
         download_arxiv_pdf(pdf_url, save_root_dir=temp_dir)
+        time.sleep(0.78) # avoid too many requests
     yield make_sse_message("Downloading related papers done.")
 
     # Extract summary from related_papers
@@ -328,6 +330,7 @@ async def create_embedding_event_generator(data:dict):
         yield make_sse_message(f"Extracting summary from related paper {idx+1}/{len(related_papers)}...")
         summary = paper.get("summary", "")
         summaries.append(summary)
+        time.sleep(1) # avoid too many requests
     yield make_sse_message("Extracting summary from related papers done.")
 
     # Using Docling to convert pdf to markdown
@@ -343,9 +346,6 @@ async def create_embedding_event_generator(data:dict):
 
     # Chunk
     yield make_sse_message("Chunking markdown...")
-    # text_splitter = CharacterTextSplitter( # TODO: need reevaluate
-    #     # Set a really small chunk size, just to show.
-    #     chunk_size=100, # TODO: ref to cfg.context_length.FASTEMBED_MODELS
     if EMBEDDING_PROVIDER == "fastembed":
         chunk_size = [int(it['context_length']) for it in FASTEMBED_MODELS if it['model'] == EMBEDDING_MODEL] or [256]
         vector_size = [int(it['dim']) for it in FASTEMBED_MODELS if it['model'] == EMBEDDING_MODEL] or [768]
@@ -364,15 +364,26 @@ async def create_embedding_event_generator(data:dict):
         yield make_sse_message(f"Chunking {idx+1}/{len(markdowns)}...")
         chunks = text_splitter.split_text(markdown)
         chuncked_markdowns.extend(chunks)
+        time.sleep(0.78)
     yield make_sse_message(f"Chunking done. Total chunks: {len(chuncked_markdowns)}")
     
     # Create embedding(full paper)
     yield make_sse_message("Creating embedding...")
     full_paper_embeddings = []
     for idx, chunk in enumerate(chuncked_markdowns):
+        
+        logging.info(f"Creating embedding {idx+1}/{len(chuncked_markdowns)}...")
         yield make_sse_message(f"Creating embedding {idx+1}/{len(chuncked_markdowns)}...")
+        
+        start_time = time.time()
         embedding = get_text_embedding(chunk)
         full_paper_embeddings.append(embedding)
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        
+        logging.info(f"Embedding {idx+1}/{len(chuncked_markdowns)} done. Elapsed time: {elapsed_time:.2f} seconds")
+        yield make_sse_message(f"Creating embedding {idx+1}/{len(chuncked_markdowns)} done. Elapsed time: {elapsed_time:.2f} seconds")
+    
     yield make_sse_message("Creating embedding done.")
 
     # Create embedding(summary)

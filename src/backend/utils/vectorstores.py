@@ -2,7 +2,7 @@ from pprint import pprint
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 
-def create_qd_collection(client_loc: str, coll_name: str, vector_size: int, distance: str = "Cosine") -> QdrantClient:
+def create_qd_collection(client_loc: str, coll_name: str, vector_size: int, distance: str = "COSINE") -> QdrantClient:
     """
     Create a Qdrant collection with the specified name and vector size.
     
@@ -10,7 +10,7 @@ def create_qd_collection(client_loc: str, coll_name: str, vector_size: int, dist
         client_loc (str): The location of the Qdrant client.
         coll_name (str): The name of the collection to create.
         vector_size (int): The size of the vectors in the collection.
-        distance (str): The distance metric to use. Default is "Cosine".
+        distance (str): The distance metric to use. Default is "COSINE".
         
     Returns:
         QdrantClient: The Qdrant client connected to the specified collection.
