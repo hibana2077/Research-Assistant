@@ -1,5 +1,5 @@
-import sseclient
-import requests
+import httpx
+from httpx_sse import connect_sse
 import os
 import json
 import streamlit as st
@@ -79,24 +79,51 @@ def get_related_papers(keywords):
 
 def get_emb_index(paper_name: str, username: str):
     """
-    Get embedding index for a paper using SSE.
+    Get embedding index for a paper using SSE with httpx.
     """
     url = f"{BACKEND_SERVER}/papers/get_emb_index"
     payload = {
         "paper_name": paper_name,
         "username": username
     }
-    # SSE 通常用 GET，但 FastAPI 這裡是 POST，所以用 stream=True
-    response = requests.get(url, json=payload, stream=True)
-    response.raise_for_status()
-
-    client = sseclient.SSEClient(response)
     results = []
-    for event in client.events():
-        # event.data 會是每次 yield 的訊息
-        if event.data == "[DONE]":
-            break
-        results.append(event.data)
-        status = json.loads(event.data).get("status", "processing")
-        st.toast(status)
-    return {"status": "success", "events": results}
+    try:
+        # 使用 httpx.Client 建立連線
+        with httpx.Client(timeout=None) as client: # timeout=None 避免長時間操作超時
+            # 使用 connect_sse 建立 SSE 連線
+            # 注意：雖然 SSE 通常用 GET，但你的後端是 POST，所以這裡用 "POST"
+            # httpx_sse 支援傳遞 json 參數
+            with connect_sse(client, "POST", url, json=payload) as event_source:
+                # 檢查 HTTP 狀態碼 (httpx_sse 會在連線失敗時拋出異常)
+                # event_source.response.raise_for_status() # httpx_sse < 0.4.0
+                # For httpx_sse >= 0.4.0, errors are raised during connect_sse
+
+                # 迭代接收 SSE 事件
+                for sse in event_source.iter_sse():
+                    # sse.data 是每次 yield 的訊息字串
+                    if sse.data == "[DONE]":
+                        break
+                    results.append(sse.data)
+                    try:
+                        # 嘗試解析 JSON 並顯示狀態
+                        data = json.loads(sse.data)
+                        status = data.get("status", "processing")
+                        st.toast(status)
+                    except json.JSONDecodeError:
+                        # 如果不是 JSON，直接顯示原始訊息
+                        st.toast(f"Received: {sse.data}")
+                    except Exception as e:
+                        st.error(f"Error processing event: {e}")
+                        print(f"Error processing event data: {sse.data}, Error: {e}")
+
+        return {"status": "success", "events": results}
+
+    except httpx.RequestError as exc:
+        st.error(f"An error occurred while requesting {exc.request.url!r}: {exc}")
+        return {"status": "fail", "events": [], "error": str(exc)}
+    except httpx.HTTPStatusError as exc:
+        st.error(f"Error response {exc.response.status_code} while requesting {exc.request.url!r}: {exc.response.text}")
+        return {"status": "fail", "events": [], "error": f"HTTP {exc.response.status_code}: {exc.response.text}"}
+    except Exception as e:
+        st.error(f"An unexpected error occurred: {e}")
+        return {"status": "fail", "events": [], "error": str(e)}
