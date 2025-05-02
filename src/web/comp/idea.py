@@ -106,8 +106,7 @@ def view_paper_dialog(paper_name, username):
         if emb_index:
             st.write("Embedding:")
             # st.json(emb_index)# list of strings
-            TABLE_TEXT = """| Collection Name | indexed_vectors_count |
-|------------------|-----------------------|"""
+            TABLE_TEXT = """| Collection Name | indexed_vectors_count |\n|------------------|-----------------------|\n"""
 
             for index in emb_index:
                 collection_info = get_emb_col_info(index)
