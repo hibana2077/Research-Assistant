@@ -63,7 +63,6 @@ def view_paper_dialog(paper_name, username):
         # if related_papers, display them
         # if not related_papers and keywords != none, "Please press the button to get related papers"
         if related_papers:
-            st.write("Related Papers:")
             related_papers_df = pl.DataFrame(related_papers)
             st.dataframe(related_papers_df)
         elif related_papers == [] and keywords == []:
