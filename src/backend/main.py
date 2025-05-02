@@ -358,7 +358,7 @@ async def create_embedding_event_generator(data:dict):
     # Chunk
     yield make_sse_message("Chunking markdown...")
     if EMBEDDING_PROVIDER == "fastembed":
-        chunk_size = [int(it['context_length']) for it in FASTEMBED_MODELS if it['model'] == EMBEDDING_MODEL] or [256]
+        chunk_size = [512] # [int(it['context_length']) for it in FASTEMBED_MODELS if it['model'] == EMBEDDING_MODEL] or 
         vector_size = [int(it['dim']) for it in FASTEMBED_MODELS if it['model'] == EMBEDDING_MODEL] or [768]
     elif EMBEDDING_PROVIDER == "openai":
         chunk_size = [int(it['context_length']) for it in OPENAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL] or [2048]
