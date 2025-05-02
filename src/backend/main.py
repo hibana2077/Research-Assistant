@@ -319,6 +319,7 @@ async def create_embedding_event_generator(data:dict):
     yield make_sse_message("Downloading related papers...")
     pdf_urls = [paper["pdf_url"] for paper in related_papers]
     temp_dir = tempfile.mkdtemp()
+    logging.info(f"Temporary directory: {temp_dir}")
     for idx, pdf_url in enumerate(pdf_urls):
         yield make_sse_message(f"Downloading related paper {idx+1}/{len(pdf_urls)}...")
         download_arxiv_pdf(pdf_url, save_root_dir=temp_dir)
@@ -339,12 +340,19 @@ async def create_embedding_event_generator(data:dict):
     yield make_sse_message("Converting pdf to markdown...")
     converter = DocumentConverter()
     markdowns = []
+    # save markdown to temp dir
+    md_tmp_dir = tempfile.mkdtemp()
+    logging.info(f"Temporary markdown directory: {md_tmp_dir}")
     pdfs = [os.path.join(temp_dir, pdf) for pdf in os.listdir(temp_dir) if pdf.endswith(".pdf")]
     for pdf in pdfs:
         yield make_sse_message(f"Converting {pdf} to markdown...")
         result = converter.convert(pdf)
         markdowns.append(result.document.export_to_markdown())
         logging.info(f"Markdown preview: {markdowns[-1][:100]}")
+        # write to file
+        with open(os.path.join(md_tmp_dir, os.path.basename(pdf) + ".md"), "w", encoding="utf-8") as f:
+            f.write(markdowns[-1])
+        logging.info(f"Saved markdown for {pdf} to {md_tmp_dir}")
     yield make_sse_message("Converting pdf to markdown done.")
 
     # Chunk
