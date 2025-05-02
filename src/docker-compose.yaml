@@ -13,6 +13,8 @@ services:
       LLM_MODEL: ${LLM_MODEL}
       KEY_PROMPT_MODEL: ${KEY_PROMPT_MODEL}
       NOVELTY_CHECK_MODEL: ${NOVELTY_CHECK_MODEL}
+      TITLE_PROMPT_MODEL: ${TITLE_PROMPT_MODEL}
+      TLDR_PROMPT_MODEL: ${TLDR_PROMPT_MODEL}
     depends_on:
       - backend
     networks:
