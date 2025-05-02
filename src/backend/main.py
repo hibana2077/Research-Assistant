@@ -7,6 +7,7 @@ import pymongo
 import tempfile
 import numpy as np
 import pandas as pd
+from datetime import timezone
 from pprint import pprint
 from langchain_text_splitters import CharacterTextSplitter
 from docling.document_converter import DocumentConverter
@@ -397,8 +398,8 @@ async def create_embedding_event_generator(data:dict):
 
     # Create Qdrant collection
     yield make_sse_message("Creating Qdrant collection...")
-    full_paper_coll_name = f"full_paper_collection_{datetime.utcnow().isoformat()}"
-    summary_coll_name = f"summary_collection_{datetime.utcnow().isoformat()}"
+    full_paper_coll_name = f"full_paper_collection_{int(datetime.now(timezone.utc).timestamp())}"
+    summary_coll_name = f"summary_collection_{int(datetime.now(timezone.utc).timestamp())}"
     # update to mongo
     papers_collection.update_one({"paper_name": paper_name, "username": username}, {"$set": {"emb_index": [full_paper_coll_name, summary_coll_name]}})
     # create qd_client and collection(full_paper)
