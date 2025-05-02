@@ -363,10 +363,13 @@ async def create_embedding_event_generator(data:dict):
     # for loop: chunking
     chuncked_markdowns = [] # List[List[str]]
     for idx, markdown in enumerate(markdowns):
+        logging.info(f"Chunking {idx+1}/{len(markdowns)}...")
         yield make_sse_message(f"Chunking {idx+1}/{len(markdowns)}...")
         chunks = text_splitter.split_text(markdown)
         chuncked_markdowns.extend(chunks)
         time.sleep(0.78)
+    
+    logging.info(f"Chunking done. Total chunks: {len(chuncked_markdowns)}")
     yield make_sse_message(f"Chunking done. Total chunks: {len(chuncked_markdowns)}")
     
     # Create embedding(full paper)
