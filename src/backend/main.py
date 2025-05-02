@@ -433,6 +433,13 @@ async def create_embedding_event_generator(data:dict):
     insert_qd_collection(qd_client, full_paper_coll_name, full_paper_saving_data)
     # create qd_client and collection(summary)
     qd_client = create_qd_collection(QDRANT_URL, summary_coll_name, vector_size[0])
+    logging.info(f"Summary embedding length: {len(summary_embeddings)}")
+    logging.info(f"Summary embedding shape: {np.array(summary_embeddings).shape}") # (N, 1, 768) -> (N, 768)
+    # convert to numpy array
+    summary_embeddings = np.array(summary_embeddings).reshape(-1, vector_size[0])
+    logging.info(f"Summary embedding shape: {summary_embeddings.shape}") # (N, 768)
+    # convert to list
+    summary_embeddings = summary_embeddings.tolist()
     summary_saving_data = {
         "vectors": summary_embeddings,
         "payload": [{"text": summary} for summary in summaries]
