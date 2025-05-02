@@ -89,3 +89,41 @@ def llm_paper_title_prompt(keywords: list[str]) -> str:
             if line.strip()
         ]
     return titles
+
+def llm_tldr_prompt(keywords: list[str], paper_title: str) -> str:
+    """
+    根據 keywords 和 paper_title，向 LLM 要求生成一個與 SCI 領域有關的論文摘要。
+    回傳格式：str。
+    """
+    # 初始化 client
+    client = OpenAI(
+        base_url=OPENROUTE_BASE_URL,
+        api_key=OPENROUTE_API_KEY,
+    )
+    # 準備對話
+    system_prompt = "You are an assistant that suggests research paper TL;DRs in the scientific domain."
+    user_prompt = (
+        f"Given the research keywords: {', '.join(keywords)}, "
+        f"and the research paper title: {paper_title}, "
+        "please suggest a relevant research paper TL;DR (in 1 to 2 sentences). "
+        "Reply with a JSON string only. "
+        "e.g. {\"tl;dr\": \"...\"}"
+    )
+    # 呼叫 LLM
+    response = client.chat.completions.create(
+        model=TLDR_PROMPT_MODEL,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user",   "content": user_prompt},
+        ],
+    )
+    content = response.choices[0].message.content
+    # 將 JSON 字串解析回 Python dict
+    try:
+        tldr = json.loads(content)
+    except json.JSONDecodeError:
+        # 若 LLM 回傳格式非 JSON，就嘗試以行拆分
+        tldr = {
+            "tl;dr": content.strip()
+        }
+    return tldr["tl;dr"]
