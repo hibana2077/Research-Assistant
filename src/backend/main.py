@@ -386,7 +386,7 @@ async def create_embedding_event_generator(data:dict):
     full_paper_coll_name = f"full_paper_collection_{datetime.utcnow().isoformat()}"
     summary_coll_name = f"summary_collection_{datetime.utcnow().isoformat()}"
     # update to mongo
-    papers_collection.update_one({"paper_name": paper_name, "username": username}, {"$set": {"full_paper_coll_name": full_paper_coll_name, "summary_coll_name": summary_coll_name}})
+    papers_collection.update_one({"paper_name": paper_name, "username": username}, {"$set": {"emb_index": [full_paper_coll_name, summary_coll_name]}})
     # create qd_client and collection(full_paper)
     qd_client = create_qd_collection(QDRANT_URL, full_paper_coll_name, vector_size[0])
     full_paper_saving_data = {
