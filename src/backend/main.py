@@ -263,8 +263,9 @@ async def search_arxiv(query_data: dict):
     ```
     """
     meta_query_list: list[str] = query_data.get("query", [])
+    max_results: int = query_data.get("max_results", 3)
     query = ', '.join(list(keyword.strip() for keyword in meta_query_list))
-    arxiv = ArXivComponent(search_query=query, max_results=10)
+    arxiv = ArXivComponent(search_query=query, max_results=max_results)
     papers = arxiv.search_papers()
     
     # logging
@@ -404,6 +405,9 @@ async def create_embedding_event_generator(data:dict):
     papers_collection.update_one({"paper_name": paper_name, "username": username}, {"$set": {"emb_index": [full_paper_coll_name, summary_coll_name]}})
     # create qd_client and collection(full_paper)
     qd_client = create_qd_collection(QDRANT_URL, full_paper_coll_name, vector_size[0])
+    logging.info(f"Full paper embedding length: {len(full_paper_embeddings)}")
+    logging.info(f"Full paper chunked_markdowns length: {len(chuncked_markdowns)}")
+    logging.info(f"Full paper embedding shape: {np.array(full_paper_embeddings).shape}")
     full_paper_saving_data = {
         "vectors": full_paper_embeddings,
         "payload": [{"text": chunk} for chunk in chuncked_markdowns]
