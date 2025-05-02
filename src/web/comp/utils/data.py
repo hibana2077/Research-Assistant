@@ -2,6 +2,7 @@ import httpx
 from httpx_sse import connect_sse
 import os
 import json
+import requests
 import streamlit as st
 
 BACKEND_SERVER = os.getenv("BACKEND_SERVER", "http://localhost:8000")
