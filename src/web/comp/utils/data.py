@@ -1,6 +1,7 @@
 import sseclient
 import requests
 import os
+import json
 import streamlit as st
 
 BACKEND_SERVER = os.getenv("BACKEND_SERVER", "http://localhost:8000")
@@ -90,13 +91,13 @@ def get_emb_index(paper_name: str, username: str):
     if response.status_code != 200:
         return {"status": "fail", "vector_search": []}
 
-    client = sseclient.SSEClient(response)
+    client = sseclient.SSEClient(response.raw)
     results = []
     for event in client.events():
         # event.data 會是每次 yield 的訊息
         if event.data == "[DONE]":
             break
         results.append(event.data)
-        status = event.data.get("status")
+        status = json.loads(event.data).get("status", "processing")
         st.toast(status)
     return {"status": "success", "events": results}
