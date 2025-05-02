@@ -27,7 +27,7 @@ from utils.arxiv import ArXivComponent
 from utils.download import download_arxiv_pdf
 from utils.sse import make_sse_message
 from utils.embed import get_text_embedding
-from utils.vectorstores import create_qd_collection, insert_qd_collection, search_qd_collection
+from utils.vectorstores import create_qd_collection, insert_qd_collection, search_qd_collection, get_collection_info
 
 # self-defined config
 from cfg.emb import FASTEMBED_MODELS, OPENAI_EMB_MODELS, VOYAGEAI_EMB_MODELS
@@ -475,6 +475,21 @@ async def get_emb_index(data: dict):
         create_embedding_event_generator(data),
         media_type="text/event-stream",
     )
+
+@app.get("/vec_store/col_count/{collection_name}")
+async def get_collection_count(collection_name: str):
+    """
+    Get the count of a collection.
+    """
+    col_info = get_collection_info(QDRANT_URL, collection_name)
+    return {"status": "success",
+            "indexed_vectors_count": col_info.indexed_vectors_count,
+            "optimizer_status": col_info.optimizer_status,
+            "points_count": col_info.points_count,
+            "segments_count": col_info.segments_count,
+            "status": col_info.status,
+            "vectors_count": col_info.vectors_count}
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host=HOST, port=8081)

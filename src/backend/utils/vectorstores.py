@@ -1,6 +1,7 @@
 from pprint import pprint
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
+from qdrant_client.http.models.models import CollectionInfo
 
 def create_qd_collection(client_loc: str, coll_name: str, vector_size: int, distance: str = "COSINE") -> QdrantClient:
     """
@@ -74,3 +75,21 @@ def search_qd_collection(client_loc: str, coll_name: str, query_vector: list, li
     print(f"Search results:")
     pprint(results)
     return results
+
+def get_collection_info(client_loc: str, coll_name: str) -> CollectionInfo:
+    """
+    Get information about the specified Qdrant collection.
+    
+    Args:
+        client_loc (str): The location of the Qdrant client.
+        coll_name (str): The name of the collection to get information about.
+        
+    Returns:
+        dict: Information about the collection.
+    """
+    qd_client = QdrantClient(url=client_loc)
+    collection_info = qd_client.get_collection(collection_name=coll_name)
+    
+    print(f"Collection info for '{coll_name}':")
+    pprint(collection_info)
+    return collection_info
