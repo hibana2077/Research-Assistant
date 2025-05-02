@@ -166,6 +166,25 @@ def view_paper_dialog(paper_name, username):
             suggest_tldr = st.button("Suggest TL;DR", key="suggest_tldr")
         with right_col:
             save_section1 = st.button("Save", key="save_section1")
+        if suggest_paper_title:
+            # Call the LLM to get suggested paper title
+            paper_title = llm_paper_title_prompt(st.session_state['keywords'])
+            st.info(f"Suggested paper title: {paper_title}")
+        if suggest_tldr:
+            # Call the LLM to get suggested TL;DR
+            tldr = llm_tldr_prompt(st.session_state['keywords'], paper_title)
+            st.info(f"Suggested TL;DR: {tldr}")
+        if save_section1:
+            paper_title = st.session_state.get('paper_title', paper_title)
+            tldr = st.session_state.get('tldr', tldr)
+            generator_data['paper_title'] = paper_title
+            generator_data['tldr'] = tldr
+            update_paper_idea(paper_name, username, {"generator": generator_data})
+            st.session_state.paper_title = paper_title
+            st.session_state.tldr = tldr
+            st.success("Paper title and TL;DR updated successfully!")
+            st.session_state['paper_title'] = None
+            st.session_state['tldr'] = None
         ## 1.5. Novelty check
         ## 2. Search the embedding(embedding the texts from steps 1)
         ## 3. Generate the Abstract
