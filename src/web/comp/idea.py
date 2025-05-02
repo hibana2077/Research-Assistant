@@ -115,4 +115,6 @@ def view_paper_dialog(paper_name, username):
         if get_emb_index_btn:
             result = get_emb_index(paper_name=paper_name,
                                    username=username)
-            st.json(result)
+            status = result['status']
+            if status == "success":
+                st.success("Embedding updated successfully!")
