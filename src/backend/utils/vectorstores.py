@@ -36,7 +36,7 @@ def insert_qd_collection(qd_client: QdrantClient, coll_name: str, data: dict) ->
         points=[PointStruct(id=i, vector=vec, payload=payload) for i, (vec, payload) in enumerate(zip(data['vectors'], data['payload']))],
     )
     
-    print(f"Upserted {operation_info.upserted_count} points into collection '{coll_name}'")
+    print(f"Upserted {len(data['vectors'])} points into collection '{coll_name}'")
     print(f"Operation info: {operation_info}")
     return operation_info.status
 
