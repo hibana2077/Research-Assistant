@@ -127,3 +127,26 @@ def get_emb_index(paper_name: str, username: str):
     except Exception as e:
         st.error(f"An unexpected error occurred: {e}")
         return {"status": "fail", "events": [], "error": str(e)}
+    
+def get_emb_col_info(col_name: str):
+    """
+    Get embedding collection information.
+    """
+    url = f"{BACKEND_SERVER}/vec_store/col_count/{col_name}"
+    headers = {
+        "Content-Type": "application/json"
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return {"status": "success",
+                "collection_name": col_name,
+                **response.json()}
+    else:
+        return {"status": "fail",
+            "collection_name": col_name,
+            "indexed_vectors_count": 0,
+            "optimizer_status": "unknown",
+            "points_count": 0,
+            "segments_count": 0,
+            "status": "unknown",
+            "vectors_count": 0}

@@ -482,8 +482,7 @@ async def get_collection_count(collection_name: str):
     Get the count of a collection.
     """
     col_info = get_collection_info(QDRANT_URL, collection_name)
-    return {"status": "success",
-            "indexed_vectors_count": col_info.indexed_vectors_count,
+    return {"indexed_vectors_count": col_info.indexed_vectors_count,
             "optimizer_status": col_info.optimizer_status,
             "points_count": col_info.points_count,
             "segments_count": col_info.segments_count,
