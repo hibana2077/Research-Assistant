@@ -27,6 +27,7 @@ from utils.arxiv import ArXivComponent
 from utils.download import download_arxiv_pdf
 from utils.sse import make_sse_message
 from utils.embed import get_text_embedding
+from utils.pdf import is_valid_pdf
 from utils.vectorstores import create_qd_collection, insert_qd_collection, search_qd_collection, get_collection_info
 
 # self-defined config
@@ -343,7 +344,7 @@ async def create_embedding_event_generator(data:dict):
     # save markdown to temp dir
     md_tmp_dir = tempfile.mkdtemp()
     logging.info(f"Temporary markdown directory: {md_tmp_dir}")
-    pdfs = [os.path.join(temp_dir, pdf) for pdf in os.listdir(temp_dir) if pdf.endswith(".pdf")]
+    pdfs = [os.path.join(temp_dir, pdf) for pdf in os.listdir(temp_dir) if pdf.endswith(".pdf") and is_valid_pdf(os.path.join(temp_dir, pdf))] 
     for pdf in pdfs:
         yield make_sse_message(f"Converting {pdf} to markdown...")
         result = converter.convert(pdf)

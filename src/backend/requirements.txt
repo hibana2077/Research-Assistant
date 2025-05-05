@@ -10,6 +10,7 @@ transformers
 qdrant-client
 faiss-cpu
 tiktoken
+PyPDF2
 voyageai
 huggingface_hub
 pandas
