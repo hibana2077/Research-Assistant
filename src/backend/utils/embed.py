@@ -13,7 +13,6 @@ EMBEDDING_PROVIDER_API_KEY = os.getenv("EMBEDDING_PROVIDER_API_KEY", "your_embed
 EMBEDDING_PROVIDER_URL = os.getenv("EMBEDDING_PROVIDER_URL", "https://api.openai.com/v1/embeddings")
 OLLAMA_SERVER = os.getenv("OLLAMA_SERVER", "http://localhost:11434")
 
-
 def get_text_embedding(texts: list[str]) -> list[list[float]]:
     """
     Get text embeddings from the specified embedding provider.
@@ -36,7 +35,7 @@ def get_text_embedding(texts: list[str]) -> list[list[float]]:
 
     elif EMBEDDING_PROVIDER == "fastembed":
         embed_model = TextEmbedding(model_name=EMBEDDING_MODEL, batch_size=32)
-        embed_vector = list(embed_model.embed(texts)) # list[numpy.ndarray]
+        embed_vector = list(embed_model.embed(texts,parallel=0)) # list[numpy.ndarray]
         return [vec.tolist() for vec in embed_vector] # list[list[float]]
 
     elif EMBEDDING_PROVIDER == "ollama":
