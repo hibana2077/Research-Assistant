@@ -1,6 +1,12 @@
 import os
 from typing import Optional
 import requests
+import logging
+
+logging.basicConfig(level=logging.INFO)
+# Set up logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 def download_arxiv_pdf(
     pdf_url: str,
@@ -53,11 +59,11 @@ def download_arxiv_pdf(
                     f"Incomplete download: expected {expected_size} bytes, got {written} bytes"
                 )
 
-        print(f"PDF successfully downloaded to {save_path}")
+        logger.info(f"PDF successfully downloaded to {save_path}")
         return save_path
 
     except (requests.RequestException, ValueError, IOError) as error:
-        print(f"Download failed: {error}")
+        logger.info(f"Download failed: {error}")
         return None
     
 if __name__ == "__main__":
