@@ -358,17 +358,17 @@ async def create_embedding_event_generator(data:dict):
     # Chunk
     yield make_sse_message("Chunking markdown...")
     if EMBEDDING_PROVIDER == "fastembed":
-        chunk_size = [int(it['context_length']) for it in FASTEMBED_MODELS if it['model'] == EMBEDDING_MODEL] or [512]
-        chunk_size = [2048] if chunk_size[0] >= 2048 else chunk_size
-        vector_size = [int(it['dim']) for it in FASTEMBED_MODELS if it['model'] == EMBEDDING_MODEL] or [768]
+        chunk_size = next((int(it['context_length']) for it in FASTEMBED_MODELS if it['model'] == EMBEDDING_MODEL), 512)
+        chunk_size = 2048 if chunk_size >= 2048 else chunk_size
+        vector_size = next((int(it['dim']) for it in FASTEMBED_MODELS if it['model'] == EMBEDDING_MODEL), 768)
     elif EMBEDDING_PROVIDER == "openai":
-        chunk_size = [int(it['context_length']) for it in OPENAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL] or [2048]
-        vector_size = [int(it['dim']) for it in OPENAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL] or [1536]
+        chunk_size = next((int(it['context_length']) for it in OPENAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL), 2048)
+        vector_size = next((int(it['dim']) for it in OPENAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL), 1536)
     elif EMBEDDING_PROVIDER == "voyageai":
-        chunk_size = [int(it['context_length']) for it in VOYAGEAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL] or [16000]
-        vector_size = [int(it['dim']) for it in VOYAGEAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL] or [1536]
+        chunk_size = next((int(it['context_length']) for it in VOYAGEAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL), 16000)
+        vector_size = next((int(it['dim']) for it in VOYAGEAI_EMB_MODELS if it['model'] == EMBEDDING_MODEL), 1536)
     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-        encoding_name="o200k_base", chunk_size=chunk_size[0], chunk_overlap=200
+        encoding_name="o200k_base", chunk_size=chunk_size, chunk_overlap=200
     )
     # for loop: chunking
     chuncked_markdowns = [] # List[List[str]]

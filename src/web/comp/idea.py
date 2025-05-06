@@ -158,13 +158,14 @@ def view_paper_dialog(paper_name, username):
             value=generator_data.get('tldr', ""),
             key="tl_dr_input_form",
         )
-        left_col, mid_col, right_col = st.columns([1, 1, 1])
+        left_col, mid_col, right_col = st.columns([2, 1, 1])
         with left_col:
             suggest_paper_title = st.button("Suggest Paper Title", key="suggest_paper_title")
         with mid_col:
             suggest_tldr = st.button("Suggest TL;DR", key="suggest_tldr")
         with right_col:
-            save_section1 = st.button("Save", key="save_section1")
+            novelty_check = st.button("Novelty Check", key="novelty_check")
+        save_section1 = st.button("Save", key="save_section1")
         if suggest_paper_title:
             # Call the LLM to get suggested paper title
             paper_title = llm_paper_title_prompt(st.session_state['keywords'])
@@ -173,6 +174,10 @@ def view_paper_dialog(paper_name, username):
             # Call the LLM to get suggested TL;DR
             tldr = llm_tldr_prompt(st.session_state['keywords'], paper_title)
             st.info(f"Suggested TL;DR: {tldr}")
+        if novelty_check:
+            # Call the LLM to get novelty check
+            st.markdown("**Novelty Check**")
+            # local embedding check -> perplexity check -> summarize
         if save_section1:
             paper_title = st.session_state.get('paper_title', paper_title)
             tldr = st.session_state.get('tldr', tldr)
