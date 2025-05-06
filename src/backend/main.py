@@ -349,7 +349,6 @@ async def create_embedding_event_generator(data:dict):
         yield make_sse_message(f"Converting {pdf} to markdown...")
         result = converter.convert(pdf)
         markdowns.append(result.document.export_to_markdown())
-        logging.info(f"Markdown preview: {markdowns[-1][:100]}")
         # write to file
         with open(os.path.join(md_tmp_dir, os.path.basename(pdf) + ".md"), "w", encoding="utf-8") as f:
             f.write(markdowns[-1])
