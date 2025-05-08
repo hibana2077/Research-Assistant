@@ -2,3 +2,8 @@ image.png
 docs/lab.py
 or_sk_test.py
 gsk_test.py
+__pycache__/or_sk_test.cpython-310.pyc
+key_scrapter.py
+machine_learning_repos_2025.csv
+train_model_code_results.csv
+docs/*.csv
