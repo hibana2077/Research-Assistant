@@ -259,6 +259,11 @@ def view_paper_dialog(paper_name, username):
             st.success("Experiment structure updated successfully!")
 
         st.code(st.session_state.get('experiment_structure', ""), language="yaml")
+        save_experiment_structure_btn = st.button("Save Experiment Structure", key="save_experiment_structure")
+        if save_experiment_structure_btn:
+            experiment_structure_yaml = st.session_state.get('experiment_structure', "")
+            generator_data['experiment_structure'] = experiment_structure_yaml
+            update_paper_idea(paper_name, username, {"generator": generator_data})
 
     # Tab 5: Paper Generate
     with tab5:
