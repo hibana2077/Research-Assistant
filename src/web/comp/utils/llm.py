@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 from openai import OpenAI
 
 OPENROUTE_BASE_URL = os.getenv("OPENROUTE_BASE_URL", "https://openrouter.ai/api/v1")
@@ -11,8 +12,16 @@ NOVELTY_CHECK_MODEL = os.getenv("NOVELTY_CHECK_MODEL", "perplexity/sonar-reasoni
 HYPOTHESES_PROMPT_MODEL = os.getenv("HYPOTHESES_PROMPT_MODEL", "openai/o3-mini")
 LLM_MODEL = os.getenv("LLM_MODEL", "openai/o3-mini")
 
-# 已設定：
-# OPENROUTE_BASE_URL, OPENROUTE_API_KEY, KEY_PROMPT_MODEL
+# 設定 logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler("app.log")
+    ]
+)
+logger = logging.getLogger(__name__)
 
 def llm_keywords_prompt(current_keywords: list[str]) -> list[str]:
     """
@@ -259,7 +268,7 @@ def llm_experiment_design_prompt(paper_title:str, paper_abstract:str, paper_hypo
         response_format={"type": "json_object"},
     )
     content = response.choices[0].message.content
-    print(content)
+    logger.info(f"LLM response: {content}")
     if isinstance(content, str):
         # 將 JSON 字串解析回 Python dict
         try:
