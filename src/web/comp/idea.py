@@ -148,6 +148,10 @@ def view_paper_dialog(paper_name, username):
             return
         
         st.session_state['keywords'] = paper_data['paper'].get('keywords', [])
+        st.session_state['paper_title'] = paper_data['paper'].get('paper_title', "")
+        st.session_state['abstract'] = paper_data['paper'].get('abstract', "")
+        st.session_state['hypotheses'] = paper_data['paper'].get('hypotheses', "")
+        st.session_state['experiment_structure'] = paper_data['paper'].get('experiment_structure', "")
         generator_data = paper_data['paper'].get('generator', {})
         
         # paper generator steps
