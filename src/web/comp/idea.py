@@ -15,7 +15,7 @@ from .utils.llm import (
     llm_paper_title_prompt,
     llm_abstract_prompt,
     llm_novelty_check,
-    llm_hypothesis_prompt,
+    llm_hypotheses_prompt,
     llm_experiment_design_prompt
 )
 
@@ -229,7 +229,7 @@ def view_paper_dialog(paper_name, username):
             st.success("Proposal hypothesis updated successfully!")
         if suggest_hypothesis:
             # Call the LLM to get suggested hypothesis
-            sg_hypothesis = llm_hypothesis_prompt(
+            sg_hypothesis = llm_hypotheses_prompt(
                 paper_title=st.session_state['paper_title'] if st.session_state.get('paper_title') else "",
                 paper_abstract=st.session_state['abstract'] if st.session_state.get('abstract') else "",
             )

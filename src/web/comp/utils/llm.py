@@ -8,7 +8,7 @@ KEY_PROMPT_MODEL = os.getenv("KEY_PROMPT_MODEL", "gpt-3.5-turbo")
 TITLE_PROMPT_MODEL = os.getenv("TITLE_PROMPT_MODEL", "microsoft/phi-4-reasoning-plus")
 ABSTRACT_PROMPT_MODEL = os.getenv("ABSTRACT_PROMPT_MODEL", "microsoft/phi-4-reasoning-plus")
 NOVELTY_CHECK_MODEL = os.getenv("NOVELTY_CHECK_MODEL", "perplexity/sonar-reasoning-pro")
-HYPOTHESIS_PROMPT_MODEL = os.getenv("HYPOTHESIS_PROMPT_MODEL", "openai/gpt-4o-mini")
+HYPOTHESES_PROMPT_MODEL = os.getenv("HYPOTHESES_PROMPT_MODEL", "openai/gpt-4o-mini")
 
 # 已設定：
 # OPENROUTE_BASE_URL, OPENROUTE_API_KEY, KEY_PROMPT_MODEL
@@ -172,9 +172,9 @@ def llm_novelty_check(paper_title:str, paper_abstract:str) -> dict:
         result = json.loads(content)
     return result
 
-def llm_hypothesis_prompt(paper_title:str, paper_abstract:str) -> list[dict]:
+def llm_hypotheses_prompt(paper_title:str, paper_abstract:str) -> list[dict]:
     """
-    Generate a hypothesis based on the paper title and abstract.
+    Generate a hypotheses based on the paper title and abstract.
     Return format: str.
     """
     # 初始化 client
@@ -183,17 +183,17 @@ def llm_hypothesis_prompt(paper_title:str, paper_abstract:str) -> list[dict]:
         api_key=OPENROUTE_API_KEY,
     )
     # 準備對話
-    system_prompt = "You are an assistant that generates research hypotheses in the scientific domain."
+    system_prompt = "You are an assistant that generates **research hypotheses** strictly aligned with the supplied paper's field (e.g., computer vision, graph learning). Do NOT introduce medical or clinical topics unless they appear in the paper itself."
     user_prompt = (
         f"Given the research paper title: {paper_title}, "
         f"and the research paper Abstract: {paper_abstract}, "
-        "please generate a hypothesis and return a JSON object with the results."
-        "e.g. {\"hypothesis\": [hypothesis_obj_1, hypothesis_obj_2, ...], "
-        "hypothesis_obj_n = {\"name\": \"...\", \"description\": \"...\", \"verify_method\": \"...\", \"expected_result\": \"...\"}"
+        "please generate a hypotheses and return a JSON object with the results."
+        "e.g. {\"hypotheses\": [hypotheses_obj_1, hypotheses_obj_2, ...], "
+        "hypotheses_obj_n = {\"name\": \"...\", \"description\": \"...\", \"verify_method\": \"...\", \"expected_result\": \"...\"}"
     )
     # 呼叫 LLM
     response = client.chat.completions.create(
-        model=HYPOTHESIS_PROMPT_MODEL,
+        model=HYPOTHESES_PROMPT_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user",   "content": user_prompt},
@@ -207,13 +207,13 @@ def llm_hypothesis_prompt(paper_title:str, paper_abstract:str) -> list[dict]:
     except json.JSONDecodeError:
         # 若 LLM 回傳格式非 JSON，就嘗試以行拆分
         result = {
-            "hypothesis": content.strip()
+            "hypotheses": content.strip()
         }
-    return result["hypothesis"] if isinstance(result, dict) else result
+    return result["hypotheses"] if isinstance(result, dict) else result
 
-def llm_experiment_design_prompt(paper_title:str, paper_abstract:str, paper_hypothesis:str) -> str:
+def llm_experiment_design_prompt(paper_title:str, paper_abstract:str, paper_hypotheses:str) -> str:
     """
-    Generate an experiment design based on the paper title, abstract, and hypothesis.
+    Generate an experiment design based on the paper title, abstract, and hypotheses.
     Return format: str.
     """
     # 初始化 client
@@ -226,7 +226,7 @@ def llm_experiment_design_prompt(paper_title:str, paper_abstract:str, paper_hypo
     user_prompt = (
         f"Given the research paper title: {paper_title}, "
         f"and the research paper abstract: {paper_abstract}, "
-        f"and the research paper hypothesis: {paper_hypothesis}, "
+        f"and the research paper hypotheses: {paper_hypotheses}, "
         "please generate an experiment design and return a JSON object with the results."
         "e.g. {\"experiment\": \"yaml format texts\"}"
     )
