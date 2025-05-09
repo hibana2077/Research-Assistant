@@ -7,3 +7,4 @@ key_scrapter.py
 machine_learning_repos_2025.csv
 train_model_code_results.csv
 docs/*.csv
+.DS_Store
