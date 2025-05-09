@@ -4,11 +4,12 @@ from openai import OpenAI
 
 OPENROUTE_BASE_URL = os.getenv("OPENROUTE_BASE_URL", "https://openrouter.ai/api/v1")
 OPENROUTE_API_KEY = os.getenv("OPENROUTE_API_KEY", "your_openroute_api_key")
-KEY_PROMPT_MODEL = os.getenv("KEY_PROMPT_MODEL", "gpt-3.5-turbo")
+KEY_PROMPT_MODEL = os.getenv("KEY_PROMPT_MODEL", "openai/o3-mini")
 TITLE_PROMPT_MODEL = os.getenv("TITLE_PROMPT_MODEL", "microsoft/phi-4-reasoning-plus")
 ABSTRACT_PROMPT_MODEL = os.getenv("ABSTRACT_PROMPT_MODEL", "microsoft/phi-4-reasoning-plus")
 NOVELTY_CHECK_MODEL = os.getenv("NOVELTY_CHECK_MODEL", "perplexity/sonar-reasoning-pro")
-HYPOTHESES_PROMPT_MODEL = os.getenv("HYPOTHESES_PROMPT_MODEL", "openai/gpt-4o-mini")
+HYPOTHESES_PROMPT_MODEL = os.getenv("HYPOTHESES_PROMPT_MODEL", "openai/o3-mini")
+LLM_MODEL = os.getenv("LLM_MODEL", "openai/o3-mini")
 
 # 已設定：
 # OPENROUTE_BASE_URL, OPENROUTE_API_KEY, KEY_PROMPT_MODEL
@@ -249,6 +250,7 @@ def llm_experiment_design_prompt(paper_title:str, paper_abstract:str, paper_hypo
             {"role": "system", "content": system_prompt},
             {"role": "user",   "content": user_prompt},
         ],
+        response_format={"type": "json_object"},
     )
     content = response.choices[0].message.content
     # 將 JSON 字串解析回 Python dict
