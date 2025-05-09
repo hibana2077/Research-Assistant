@@ -57,7 +57,7 @@ def search_qd_collection(client_loc: str, coll_name: str, query_vector: list[flo
     qd_client = QdrantClient(url=client_loc)
     search_result = qd_client.query_points(
         collection_name=coll_name,
-        query_vector=query_vector,
+        query=query_vector,
         with_payload=True,
         limit=limit,
     ).points
