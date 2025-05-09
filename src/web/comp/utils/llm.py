@@ -148,7 +148,7 @@ def llm_novelty_check(paper_title:str, paper_abstract:str) -> dict:
         f"Given the research paper title: {paper_title}, "
         f"and the research paper TL;DR: {paper_abstract}, "
         "please check the novelty of the paper and return a JSON object with the results."
-        "e.g. {\"novelty\": \"1 to 10\", \"reason\": \"...\", \"suggestion\": \"...\", \"references\": [\"ref1\", \"ref2\"]}"
+        "e.g. {\"novelty\": \"1 to 10\", \"reason\": \"...\", \"suggestion\": \"...\"}"
     )
     # 呼叫 LLM
     response = client.chat.completions.create(
@@ -164,9 +164,11 @@ def llm_novelty_check(paper_title:str, paper_abstract:str) -> dict:
         result = json.loads(content)
     except json.JSONDecodeError:
         # 若 LLM 回傳格式非 JSON，就嘗試以行拆分
-        result = {
-            "novelty": content.strip()
-        }
+        # result example = ```json { "novelty": 4, "reason": "The core methodology of combining bootstrap aggregation (bagging) with Directed Acyclic Graphs (DAGs) was already introduced in the 2014 paper 'Learning directed acyclic graphs via bootstrap aggregating' [1], which proposed DAGBag for reducing false positives in edge detection via ensemble aggregation. The described paper's application to video/data representations appears contextually novel but builds directly on established principles of bagging (variance reduction in unstable models [2][3]) and existing DAG-specific implementations. The efficiency claims for high-dimensional scenarios align with prior computational optimizations in DAGBag [1].", "suggestion": "To enhance novelty, the authors could explore integration with modern ensemble techniques (e.g., stacking or boosting hybrids) or demonstrate unique topological constraints in video representation DAGs not addressed by general DAGBag frameworks. Comparisons against graph-based adaptations of random forests [2] would better contextualize improvements.", "references": ["1", "2", "3"] }```
+        # remove ```json and ``` from the content
+        content = content.replace("```json", "").replace("```", "")
+        # 將 JSON 字串解析回 Python dict
+        result = json.loads(content)
     return result
 
 def llm_hypothesis_prompt(paper_title:str, paper_abstract:str) -> list[dict]:

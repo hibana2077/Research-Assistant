@@ -203,8 +203,6 @@ def view_paper_dialog(paper_name, username):
             st.markdown(f"Novelty: {novelty_check_result['novelty']}")
             st.markdown(f"Reason: {novelty_check_result['reason']}")
             st.markdown(f"Suggestion: {novelty_check_result['suggestion']}")
-            for ref in novelty_check_result['references']:
-                st.markdown(f"- {ref}")
         if save_section1:
             paper_title = st.session_state.get('paper_title', paper_title)
             abstract = st.session_state.get('abstract', abstract)
