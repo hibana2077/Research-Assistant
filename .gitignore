@@ -8,3 +8,6 @@ machine_learning_repos_2025.csv
 train_model_code_results.csv
 docs/*.csv
 .DS_Store
+bayesian_ridge_coefficients.png
+bayesian_ridge_log_marginal_likelihood.png
+lab.py

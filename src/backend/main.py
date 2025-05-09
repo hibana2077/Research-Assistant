@@ -417,12 +417,12 @@ async def create_embedding_event_generator(data:dict):
     # update to mongo
     papers_collection.update_one({"paper_name": paper_name, "username": username}, {"$set": {"emb_index": [full_paper_coll_name, summary_coll_name]}})
     # create qd_client and collection(full_paper)
-    qd_client = create_qd_collection(QDRANT_URL, full_paper_coll_name, vector_size[0])
+    qd_client = create_qd_collection(QDRANT_URL, full_paper_coll_name, vector_size)
     logging.info(f"Full paper embedding length: {len(full_paper_embeddings)}")
     logging.info(f"Full paper chunked_markdowns length: {len(chuncked_markdowns)}")
     logging.info(f"Full paper embedding shape: {np.array(full_paper_embeddings).shape}") # (N, 1, 768) -> (N, 768)
     # convert to numpy array
-    full_paper_embeddings = np.array(full_paper_embeddings).reshape(-1, vector_size[0])
+    full_paper_embeddings = np.array(full_paper_embeddings).reshape(-1, vector_size)
     logging.info(f"Full paper embedding shape: {full_paper_embeddings.shape}") # (N, 768)
     # convert to list
     full_paper_embeddings = full_paper_embeddings.tolist()
@@ -433,11 +433,11 @@ async def create_embedding_event_generator(data:dict):
     # insert collection(full_paper) to qd_client
     insert_qd_collection(qd_client, full_paper_coll_name, full_paper_saving_data)
     # create qd_client and collection(summary)
-    qd_client = create_qd_collection(QDRANT_URL, summary_coll_name, vector_size[0])
+    qd_client = create_qd_collection(QDRANT_URL, summary_coll_name, vector_size)
     logging.info(f"Summary embedding length: {len(summary_embeddings)}")
     logging.info(f"Summary embedding shape: {np.array(summary_embeddings).shape}") # (N, 1, 768) -> (N, 768)
     # convert to numpy array
-    summary_embeddings = np.array(summary_embeddings).reshape(-1, vector_size[0])
+    summary_embeddings = np.array(summary_embeddings).reshape(-1, vector_size)
     logging.info(f"Summary embedding shape: {summary_embeddings.shape}") # (N, 768)
     # convert to list
     summary_embeddings = summary_embeddings.tolist()
