@@ -186,7 +186,7 @@ def llm_hypothesis_prompt(paper_title:str, paper_abstract:str) -> list[dict]:
     system_prompt = "You are an assistant that generates research hypotheses in the scientific domain."
     user_prompt = (
         f"Given the research paper title: {paper_title}, "
-        f"and the research paper TL;DR: {paper_abstract}, "
+        f"and the research paper Abstract: {paper_abstract}, "
         "please generate a hypothesis and return a JSON object with the results."
         "e.g. {\"hypothesis\": [hypothesis_obj_n...]}"
         "hypothesis_obj = {\"name\": \"...\", \"description\": \"...\", \"verify_method\": \"...\", \"expected_result\": \"...\"}"
@@ -198,6 +198,7 @@ def llm_hypothesis_prompt(paper_title:str, paper_abstract:str) -> list[dict]:
             {"role": "system", "content": system_prompt},
             {"role": "user",   "content": user_prompt},
         ],
+        response_format={"type": "json_object"},
     )
     content = response.choices[0].message.content
     # 將 JSON 字串解析回 Python dict
