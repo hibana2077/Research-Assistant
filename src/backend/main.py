@@ -489,6 +489,47 @@ async def get_collection_count(collection_name: str):
             "status": col_info.status,
             "vectors_count": col_info.vectors_count}
 
+@app.post("/papers/similarity_search")
+async def similarity_search(data: dict):
+    """
+    Perform similarity search for a given paper name and username.
+    ## Structure:
+    ```json
+    {
+        "paper_name": "paper_name",
+        "username": "username",
+        "query": "query"
+    }
+    ```
+    """
+    paper_name = data.get("paper_name")
+    username = data.get("username")
+    query = data.get("query")
+    
+    if not paper_name or not username or not query:
+        raise HTTPException(status_code=400, detail="Paper name, username and query are required")
+    
+    # Get the paper data from MongoDB
+    mongo_db = mongo_client["papers_db"]
+    papers_collection = mongo_db["papers"]
+    paper_data = papers_collection.find_one({"paper_name": paper_name, "username": username}, { "_id": 0})
+    
+    if not paper_data:
+        raise HTTPException(status_code=404, detail="Paper not found")
+    
+    # Get the embedding index
+    emb_index = paper_data.get("emb_index", [])
+    
+    if not emb_index:
+        raise HTTPException(status_code=400, detail="No embedding index found")
+    
+    # Perform similarity search
+    results = []
+    for index in emb_index:
+        result = search_qd_collection(QDRANT_URL, index, get_text_embedding([query])[0])
+        results.append(result)
+    
+    return {"status": "success", "results": results} # len(results) = 2 
 
 if __name__ == "__main__":
     uvicorn.run(app, host=HOST, port=8081)

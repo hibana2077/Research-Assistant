@@ -5,7 +5,7 @@
 
 ## TL;DR
 
-This is a research assistant that helps you find relevant papers and summarize them. It uses the OpenAI API to generate summaries and the Pinecone API to store and retrieve papers. It also uses Streamlit to create a web interface for the application.
+Help you quickly compose your research idea into a structured research paper.
 
 ## Tech Stack
 

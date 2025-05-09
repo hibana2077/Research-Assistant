@@ -7,17 +7,21 @@ from .utils.data import (
     update_paper_idea,
     get_related_papers,
     get_emb_index,
-    get_emb_col_info
+    get_emb_col_info,
+    similarity_search
 )
 from .utils.llm import (
     llm_keywords_prompt,
     llm_paper_title_prompt,
-    llm_tldr_prompt,
+    llm_abstract_prompt,
+    llm_novelty_check,
+    llm_hypothesis_prompt,
+    llm_experiment_design_prompt
 )
 
 @st.dialog("View Paper Idea")
 def view_paper_dialog(paper_name, username):
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Keyword", "Related Papers", "Embedding", "Generator", "Result"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Keyword", "Related Papers", "Embedding", "Scaffolding Generator", "Paper Generate"])
     # Tab 1: Keywords
     with tab1:
         paper_data = get_paper_idea(paper_name, username)
@@ -143,6 +147,7 @@ def view_paper_dialog(paper_name, username):
             st.warning("Please finish the previous step first.")
             return
         
+        st.session_state['keywords'] = paper_data['paper'].get('keywords', [])
         generator_data = paper_data['paper'].get('generator', {})
         
         # paper generator steps
@@ -153,42 +158,104 @@ def view_paper_dialog(paper_name, username):
             value=generator_data.get('paper_title', ""),
             key="paper_title_input_form",
         )
-        tldr = st.text_area(
+        abstract = st.text_area(
             "Please enter the TL;DR section of the paper",
-            value=generator_data.get('tldr', ""),
+            value=generator_data.get('abstract', ""),
             key="tl_dr_input_form",
         )
         left_col, mid_col, right_col = st.columns([2, 1, 1])
         with left_col:
             suggest_paper_title = st.button("Suggest Paper Title", key="suggest_paper_title")
         with mid_col:
-            suggest_tldr = st.button("Suggest TL;DR", key="suggest_tldr")
+            suggest_abstract = st.button("Suggest TL;DR", key="suggest_abstract")
         with right_col:
             novelty_check = st.button("Novelty Check", key="novelty_check")
         save_section1 = st.button("Save", key="save_section1")
         if suggest_paper_title:
+            relate_summaries = similarity_search(paper_name, username, st.session_state['keywords'])['results'][-1]
             # Call the LLM to get suggested paper title
-            paper_title = llm_paper_title_prompt(st.session_state['keywords'])
-            st.info(f"Suggested paper title: {paper_title}")
-        if suggest_tldr:
-            # Call the LLM to get suggested TL;DR
-            tldr = llm_tldr_prompt(st.session_state['keywords'], paper_title)
-            st.info(f"Suggested TL;DR: {tldr}")
+            sg_paper_title = llm_paper_title_prompt(
+                keywords=st.session_state['keywords'],
+                user_draft_title=paper_title if paper_title else "",
+                relate_summaries=relate_summaries,
+            )
+            st.info(f"Suggested paper title: {sg_paper_title}")
+        if suggest_abstract:
+            relate_chunks = similarity_search(paper_name, username, st.session_state['keywords'])['results'][0]
+            # Call the LLM to get suggested abstract
+            sg_abstract = llm_abstract_prompt(
+                keywords=st.session_state['keywords'],
+                paper_title=paper_title if paper_title else "",
+                relate_summaries=relate_chunks,
+                user_draft_abstract=abstract if abstract else "",
+            )
+            st.info(f"Suggested Abstract: {sg_abstract}")
         if novelty_check:
             # Call the LLM to get novelty check
-            st.markdown("**Novelty Check**")
-            # local embedding check -> perplexity check -> summarize
+            # perplexity check -> summarize
+            novelty_check_result = llm_novelty_check(
+                paper_title=paper_title if paper_title else "",
+                paper_abstract=abstract if abstract else "",
+            )
+            st.markdown("**Novelty Check Result**")
+            st.markdown(f"Novelty: {novelty_check_result['novelty']}")
+            st.markdown(f"Reason: {novelty_check_result['reason']}")
+            st.markdown(f"Suggestion: {novelty_check_result['suggestion']}")
+            for ref in novelty_check_result['references']:
+                st.markdown(f"- {ref}")
         if save_section1:
             paper_title = st.session_state.get('paper_title', paper_title)
-            tldr = st.session_state.get('tldr', tldr)
+            abstract = st.session_state.get('abstract', abstract)
             generator_data['paper_title'] = paper_title
-            generator_data['tldr'] = tldr
+            generator_data['abstract'] = abstract
             update_paper_idea(paper_name, username, {"generator": generator_data})
             st.session_state.paper_title = paper_title
-            st.session_state.tldr = tldr
-            st.success("Paper title and TL;DR updated successfully!")
-            st.session_state['paper_title'] = None
-            st.session_state['tldr'] = None
-        ## 1.5. Novelty check
-        ## 2. Search the embedding(embedding the texts from steps 1)
-        ## 3. Generate the Abstract
+            st.session_state.abstract = abstract
+            st.success("Paper title and Abstract updated successfully!")
+        ## 2. Proposal Hypothesis
+        st.divider()
+        st.subheader("Proposal Hypothesis")
+        hypothesis = st.text_area(
+            "Please enter your proposal hypothesis",
+            value=generator_data.get('hypothesis', ""),
+            key="hypothesis_input_form",
+        )
+        hypothesis_btn = st.button("Save", key="hypothesis_btn")
+        suggest_hypothesis = st.button("Suggest Hypothesis", key="suggest_hypothesis")
+        if hypothesis_btn:
+            generator_data['hypothesis'] = hypothesis
+            update_paper_idea(paper_name, username, {"generator": generator_data})
+            st.session_state.hypothesis = hypothesis
+            st.success("Proposal hypothesis updated successfully!")
+        if suggest_hypothesis:
+            # Call the LLM to get suggested hypothesis
+            sg_hypothesis = llm_hypothesis_prompt(
+                paper_title=st.session_state['paper_title'] if st.session_state.get('paper_title') else "",
+                paper_abstract=st.session_state['abstract'] if st.session_state.get('abstract') else "",
+            )
+            # dict to polar dataframe
+            sg_hypothesis_df = pl.DataFrame(sg_hypothesis)
+            st.dataframe(sg_hypothesis_df)
+        ## 3. Generate Experiment structure (yaml)
+        # -> let user can copy that and ask strongest code llm to generate code
+        st.divider()
+        st.subheader("Generate Experiment Structure")
+        generate_experiment_structure_btn = st.button("Generate Experiment Structure", key="generate_experiment_structure")
+        if generate_experiment_structure_btn:
+            # Call the LLM to get suggested experiment structure
+            experiment_structure_yaml = llm_experiment_design_prompt(
+                paper_abstract=st.session_state['abstract'] if st.session_state.get('abstract') else "",
+                paper_hypothesis=st.session_state['hypothesis'] if st.session_state.get('hypothesis') else "",
+                paper_title=st.session_state['paper_title'] if st.session_state.get('paper_title') else "",
+            )
+            st.session_state['experiment_structure'] = experiment_structure_yaml
+            # save to paper idea
+            generator_data['experiment_structure'] = experiment_structure_yaml
+            update_paper_idea(paper_name, username, {"generator": generator_data})
+            st.success("Experiment structure updated successfully!")
+
+        st.code(st.session_state.get('experiment_structure', ""), language="yaml")
+
+    # Tab 5: Paper Generate
+    with tab5:
+        st.warning("This feature is work in progress.")

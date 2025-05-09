@@ -169,3 +169,22 @@ def get_emb_col_info(col_name: str):
             "segments_count": 0,
             "status": "unknown",
             "vectors_count": 0}
+    
+def similarity_search(paper_name: str, username: str, query: str):
+    """
+    Perform similarity search for a given paper name and username.
+    """
+    url = f"{BACKEND_SERVER}/papers/similarity_search"
+    payload = {
+        "paper_name": paper_name,
+        "username": username,
+        "query": query
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"status": "fail", "results": []}

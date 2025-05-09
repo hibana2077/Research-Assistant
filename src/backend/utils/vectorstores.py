@@ -41,14 +41,14 @@ def insert_qd_collection(qd_client: QdrantClient, coll_name: str, data: dict) ->
     print(f"Operation info: {operation_info}")
     return operation_info.status
 
-def search_qd_collection(client_loc: str, coll_name: str, query_vector: list, limit: int = 5) -> dict:
+def search_qd_collection(client_loc: str, coll_name: str, query_vector: list[float], limit: int = 5) -> dict:
     """
     Search for similar points in the specified Qdrant collection.
     
     Args:
         client_loc (str): The location of the Qdrant client.
         coll_name (str): The name of the collection to search in.
-        query_vector (list): The vector to search for similar points.
+        query_vector (list[float]): The vector to search for similar points.
         limit (int): The maximum number of results to return. Default is 5.
         
     Returns:
