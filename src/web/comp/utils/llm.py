@@ -209,7 +209,7 @@ def llm_hypothesis_prompt(paper_title:str, paper_abstract:str) -> list[dict]:
         result = {
             "hypothesis": content.strip()
         }
-    return result["hypothesis"]
+    return result["hypothesis"] if isinstance(result, dict) else result
 
 def llm_experiment_design_prompt(paper_title:str, paper_abstract:str, paper_hypothesis:str) -> str:
     """
