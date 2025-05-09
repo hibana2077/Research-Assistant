@@ -212,34 +212,34 @@ def view_paper_dialog(paper_name, username):
             st.session_state.paper_title = paper_title
             st.session_state.abstract = abstract
             st.success("Paper title and Abstract updated successfully!")
-        ## 2. Proposal Hypothesis
+        ## 2. Proposal Hypotheses
         st.divider()
-        st.subheader("Proposal Hypothesis")
-        hypothesis = st.text_area(
-            "Please enter your proposal hypothesis",
-            value=generator_data.get('hypothesis', ""),
-            key="hypothesis_input_form",
+        st.subheader("Proposal Hypotheses")
+        hypotheses = st.text_area(
+            "Please enter your proposal hypotheses",
+            value=generator_data.get('hypotheses', ""),
+            key="hypotheses_input_form",
         )
-        hypothesis_btn = st.button("Save", key="hypothesis_btn")
-        suggest_hypothesis = st.button("Suggest Hypothesis", key="suggest_hypothesis")
-        if hypothesis_btn:
-            generator_data['hypothesis'] = hypothesis
+        hypotheses_btn = st.button("Save", key="hypotheses_btn")
+        suggest_hypotheses = st.button("Suggest Hypotheses", key="suggest_hypotheses")
+        if hypotheses_btn:
+            generator_data['hypotheses'] = hypotheses
             update_paper_idea(paper_name, username, {"generator": generator_data})
-            st.session_state.hypothesis = hypothesis
-            st.success("Proposal hypothesis updated successfully!")
-        if suggest_hypothesis:
-            # Call the LLM to get suggested hypothesis
-            sg_hypothesis = llm_hypotheses_prompt(
+            st.session_state.hypotheses = hypotheses
+            st.success("Proposal hypotheses updated successfully!")
+        if suggest_hypotheses:
+            # Call the LLM to get suggested hypotheses
+            sg_hypotheses = llm_hypotheses_prompt(
                 paper_title=st.session_state['paper_title'] if st.session_state.get('paper_title') else "",
                 paper_abstract=st.session_state['abstract'] if st.session_state.get('abstract') else "",
             )
             # dict to polar dataframe
             st.json(
-                body=sg_hypothesis,
+                body=sg_hypotheses,
                 expanded=False
             )
-            sg_hypothesis_df = pl.DataFrame(sg_hypothesis)
-            st.dataframe(sg_hypothesis_df)
+            sg_hypotheses_df = pl.DataFrame(sg_hypotheses)
+            st.dataframe(sg_hypotheses_df)
         ## 3. Generate Experiment structure (yaml)
         # -> let user can copy that and ask strongest code llm to generate code
         st.divider()
@@ -249,7 +249,7 @@ def view_paper_dialog(paper_name, username):
             # Call the LLM to get suggested experiment structure
             experiment_structure_yaml = llm_experiment_design_prompt(
                 paper_abstract=st.session_state['abstract'] if st.session_state.get('abstract') else "",
-                paper_hypothesis=st.session_state['hypothesis'] if st.session_state.get('hypothesis') else "",
+                paper_hypotheses=st.session_state['hypotheses'] if st.session_state.get('hypotheses') else "",
                 paper_title=st.session_state['paper_title'] if st.session_state.get('paper_title') else "",
             )
             st.session_state['experiment_structure'] = experiment_structure_yaml
