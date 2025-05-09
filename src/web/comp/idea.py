@@ -234,6 +234,10 @@ def view_paper_dialog(paper_name, username):
                 paper_abstract=st.session_state['abstract'] if st.session_state.get('abstract') else "",
             )
             # dict to polar dataframe
+            st.json(
+                body=sg_hypothesis,
+                expanded=False
+            )
             sg_hypothesis_df = pl.DataFrame(sg_hypothesis)
             st.dataframe(sg_hypothesis_df)
         ## 3. Generate Experiment structure (yaml)
