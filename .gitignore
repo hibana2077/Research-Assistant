@@ -11,3 +11,4 @@ docs/*.csv
 bayesian_ridge_coefficients.png
 bayesian_ridge_log_marginal_likelihood.png
 lab.py
+docs/test.yaml

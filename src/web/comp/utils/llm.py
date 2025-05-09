@@ -241,6 +241,12 @@ def llm_experiment_design_prompt(paper_title:str, paper_abstract:str, paper_hypo
         f"and the research paper abstract: {paper_abstract}, "
         f"and the research paper hypotheses: {paper_hypotheses}, "
         "please generate an experiment design and return a JSON object with the results."
+        "each experiment should include the following fields:\n"
+        "1. **experiment_name**: A concise name for the experiment.\n"
+        "2. **experiment_description**: A brief description of the experiment.\n"
+        "3. **experiment_methodology**: The methodology used in the experiment.\n"
+        "4. **experiment_expected_results**: The expected results of the experiment.\n"
+        "5. **experiment_hypothesis**: The hypothesis being tested in the experiment.\n"
         "e.g. {\"experiment\": \"yaml format texts\"}"
     )
     # 呼叫 LLM
