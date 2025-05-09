@@ -244,31 +244,13 @@ def llm_experiment_design_prompt(paper_title:str, paper_abstract:str, paper_hypo
         api_key=OPENROUTE_API_KEY,
     )
     # 準備對話
-    system_prompt = """### Instruction
-You are a research-assistant large language model. Based on the following research information, generate an experiment design.
-**Output exactly one valid JSON object** with the structure:
-{
-  "experiment": "|\\n<YAML content>"
-}
-
-### YAML Content Specification
-The YAML block must include the following fields:
-experiment_name: <string>
-experiment_description: <string>
-experiment_methodology: <string>
-experiment_expected_results: <string>
-experiment_hypothesis: <string>
-"""
-    user_prompt = f"""
-### Context
-Research paper title: {paper_title}
-Research paper abstract: {paper_abstract}
-Research paper hypotheses: {paper_hypotheses}
-
-### Output
-Return only the JSON object described above. Do not include any additional text, explanations, or formatting.
-"""
-
+    system_prompt = "You generate YAML experiment designs for scientific papers, specifying objectives, methods, data to collect, analyses, and metrics."
+    user_prompt = (
+        f"Given the research paper title: {paper_title}, "
+        f"and the research paper abstract: {paper_abstract}, "
+        f"and the research paper hypotheses: {paper_hypotheses}, "
+        "please generate an experiment design and return in yaml format."
+    )
     # 呼叫 LLM
     response = client.chat.completions.create(
         model=LLM_MODEL,
@@ -276,19 +258,11 @@ Return only the JSON object described above. Do not include any additional text,
             {"role": "system", "content": system_prompt},
             {"role": "user",   "content": user_prompt},
         ],
-        response_format={"type": "json_object"},
     )
     content = response.choices[0].message.content
     logger.info(f"LLM response: {content}")
-    if isinstance(content, str):
-        # 將 JSON 字串解析回 Python dict
-        try:
-            result = json.loads(content)
-        except json.JSONDecodeError:
-            # 若 LLM 回傳格式非 JSON，就嘗試以行拆分
-            result = {
-                "experiment": content.strip()
-            }
-    else:
-        result = content
-    return result["experiment"] if isinstance(result, dict) else result
+    # check if the response is in YAML format
+    if content.startswith("```yaml") and content.endswith("```"):
+        # remove ```yaml and ``` from the content
+        content = content.replace("```yaml", "").replace("```", "")
+    return content
