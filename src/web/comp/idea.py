@@ -148,12 +148,12 @@ def view_paper_dialog(paper_name, username):
             return
         
         st.session_state['keywords'] = paper_data['paper'].get('keywords', [])
-        st.session_state['paper_title'] = paper_data['paper'].get('paper_title', "")
-        st.session_state['abstract'] = paper_data['paper'].get('abstract', "")
-        st.session_state['hypotheses'] = paper_data['paper'].get('hypotheses', "")
-        st.session_state['experiment_structure'] = paper_data['paper'].get('experiment_structure', "")
         generator_data = paper_data['paper'].get('generator', {})
-        
+        st.session_state['paper_title'] = generator_data.get('paper_title', "")
+        st.session_state['abstract'] = generator_data.get('abstract', "")
+        st.session_state['hypotheses'] = generator_data.get('hypotheses', "")
+        st.session_state['experiment_structure'] = generator_data.get('experiment_structure', "")
+
         # paper generator steps
         ## 1. Describe the way(like TL;DR section and paper title)(here can use llm to generate that based on keywords)
         st.subheader("Describe the way")
