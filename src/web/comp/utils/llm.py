@@ -244,20 +244,31 @@ def llm_experiment_design_prompt(paper_title:str, paper_abstract:str, paper_hypo
         api_key=OPENROUTE_API_KEY,
     )
     # 準備對話
-    system_prompt = "You are an assistant that generates research experiment designs in the scientific domain."
-    user_prompt = (
-        f"Given the research paper title: {paper_title}, "
-        f"and the research paper abstract: {paper_abstract}, "
-        f"and the research paper hypotheses: {paper_hypotheses}, "
-        "please generate an experiment design and return a JSON object with the results."
-        "each experiment should include the following fields:\n"
-        "1. **experiment_name**: A concise name for the experiment.\n"
-        "2. **experiment_description**: A brief description of the experiment.\n"
-        "3. **experiment_methodology**: The methodology used in the experiment.\n"
-        "4. **experiment_expected_results**: The expected results of the experiment.\n"
-        "5. **experiment_hypothesis**: The hypothesis being tested in the experiment.\n"
-        "e.g. {\"experiment\": \"yaml format texts\"}"
-    )
+    system_prompt = """### Instruction
+You are a research-assistant large language model. Based on the following research information, generate an experiment design.
+**Output exactly one valid JSON object** with the structure:
+{
+  "experiment": "|\\n<YAML content>"
+}
+
+### YAML Content Specification
+The YAML block must include the following fields:
+experiment_name: <string>
+experiment_description: <string>
+experiment_methodology: <string>
+experiment_expected_results: <string>
+experiment_hypothesis: <string>
+"""
+    user_prompt = f"""
+### Context
+Research paper title: {paper_title}
+Research paper abstract: {paper_abstract}
+Research paper hypotheses: {paper_hypotheses}
+
+### Output
+Return only the JSON object described above. Do not include any additional text, explanations, or formatting.
+"""
+
     # 呼叫 LLM
     response = client.chat.completions.create(
         model=LLM_MODEL,
