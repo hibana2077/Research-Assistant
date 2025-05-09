@@ -183,7 +183,7 @@ def llm_hypotheses_prompt(paper_title:str, paper_abstract:str) -> list[dict]:
         api_key=OPENROUTE_API_KEY,
     )
     # 準備對話
-    system_prompt = "You are an assistant that generates **research hypotheses** strictly aligned with the supplied paper's field (e.g., computer vision, graph learning). Do NOT introduce medical or clinical topics unless they appear in the paper itself."
+    system_prompt = "You are an assistant that generates **research hypotheses** strictly aligned with the supplied paper's field (e.g., computer vision, graph learning)."
     user_prompt = (
         f"Given the research paper title: {paper_title}, "
         f"and the research paper abstract: {paper_abstract}, "
