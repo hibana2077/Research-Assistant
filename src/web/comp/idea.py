@@ -149,8 +149,7 @@ def view_paper_dialog(paper_name, username):
         
         st.session_state['keywords'] = paper_data['paper'].get('keywords', [])
         generator_data = paper_data['paper'].get('generator', {})
-        st.session_state['paper_title'] = generator_data.get('paper_title', "")
-        st.session_state['abstract'] = generator_data.get('abstract', "")
+        st.session_state['hypotheses'] = generator_data.get('hypotheses', "")
         st.session_state['experiment_structure'] = generator_data.get('experiment_structure', "")
 
         # paper generator steps
@@ -158,12 +157,12 @@ def view_paper_dialog(paper_name, username):
         st.subheader("Describe the way")
         paper_title = st.text_input(
             "Please enter the title of the paper",
-            value=st.session_state['paper_title'],
+            value=generator_data.get('paper_title', ""),
             key="paper_title_input_form",
         )
         abstract = st.text_area(
             "Please enter the TL;DR section of the paper",
-            value=st.session_state['abstract'],
+            value=generator_data.get('abstract', ""),
             key="tl_dr_input_form",
         )
         left_col, mid_col, right_col = st.columns([2, 1, 1])
