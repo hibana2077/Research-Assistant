@@ -188,8 +188,8 @@ def llm_hypothesis_prompt(paper_title:str, paper_abstract:str) -> list[dict]:
         f"Given the research paper title: {paper_title}, "
         f"and the research paper Abstract: {paper_abstract}, "
         "please generate a hypothesis and return a JSON object with the results."
-        "e.g. {\"hypothesis\": [hypothesis_obj_n...]}"
-        "hypothesis_obj = {\"name\": \"...\", \"description\": \"...\", \"verify_method\": \"...\", \"expected_result\": \"...\"}"
+        "e.g. {\"hypothesis\": [hypothesis_obj_1, hypothesis_obj_2, ...], "
+        "hypothesis_obj_n = {\"name\": \"...\", \"description\": \"...\", \"verify_method\": \"...\", \"expected_result\": \"...\"}"
     )
     # 呼叫 LLM
     response = client.chat.completions.create(
