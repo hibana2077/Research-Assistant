@@ -66,11 +66,19 @@ def search_qd_collection(client_loc: str, coll_name: str, query_vector: list[flo
         print("No results found.")
         return {}
     
-    results = {
-        "ids": [point.id for point in search_result],
-        "scores": [point.score for point in search_result],
-        "payloads": [point.payload for point in search_result],
-    }
+    # results = {
+    #     "ids": [point.id for point in search_result],
+    #     "scores": [point.score for point in search_result],
+    #     "payloads": [point.payload for point in search_result],
+    # }
+    results = [
+        {
+            "id": point.id,
+            "score": point.score,
+            "payload": point.payload
+        }
+        for point in search_result
+    ]
     
     print(f"Search results:")
     pprint(results)
