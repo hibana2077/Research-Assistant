@@ -245,7 +245,7 @@ def llm_experiment_design_prompt(paper_title:str, paper_abstract:str, paper_hypo
     )
     # 呼叫 LLM
     response = client.chat.completions.create(
-        model=NOVELTY_CHECK_MODEL,
+        model=LLM_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user",   "content": user_prompt},
