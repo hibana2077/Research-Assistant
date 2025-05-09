@@ -259,6 +259,7 @@ def llm_experiment_design_prompt(paper_title:str, paper_abstract:str, paper_hypo
         response_format={"type": "json_object"},
     )
     content = response.choices[0].message.content
+    print(content)
     if isinstance(content, str):
         # 將 JSON 字串解析回 Python dict
         try:
