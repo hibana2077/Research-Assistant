@@ -253,12 +253,15 @@ def llm_experiment_design_prompt(paper_title:str, paper_abstract:str, paper_hypo
         response_format={"type": "json_object"},
     )
     content = response.choices[0].message.content
-    # 將 JSON 字串解析回 Python dict
-    try:
-        result = json.loads(content)
-    except json.JSONDecodeError:
-        # 若 LLM 回傳格式非 JSON，就嘗試以行拆分
-        result = {
-            "experiment": content.strip()
-        }
-    return result["experiment"]
+    if isinstance(content, str):
+        # 將 JSON 字串解析回 Python dict
+        try:
+            result = json.loads(content)
+        except json.JSONDecodeError:
+            # 若 LLM 回傳格式非 JSON，就嘗試以行拆分
+            result = {
+                "experiment": content.strip()
+            }
+    else:
+        result = content
+    return result["experiment"] if isinstance(result, dict) else result
