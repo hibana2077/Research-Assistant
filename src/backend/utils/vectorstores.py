@@ -68,7 +68,7 @@ def search_qd_collection(client_loc: str, coll_name: str, query_vector: list[flo
     
     results = {
         "ids": [point.id for point in search_result],
-        "distances": [point.distance for point in search_result],
+        "scores": [point.score for point in search_result],
         "payloads": [point.payload for point in search_result],
     }
     
