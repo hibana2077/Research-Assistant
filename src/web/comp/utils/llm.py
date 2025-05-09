@@ -186,11 +186,23 @@ def llm_hypotheses_prompt(paper_title:str, paper_abstract:str) -> list[dict]:
     system_prompt = "You are an assistant that generates **research hypotheses** strictly aligned with the supplied paper's field (e.g., computer vision, graph learning). Do NOT introduce medical or clinical topics unless they appear in the paper itself."
     user_prompt = (
         f"Given the research paper title: {paper_title}, "
-        f"and the research paper Abstract: {paper_abstract}, "
-        "please generate a hypotheses and return a JSON object with the results."
-        "e.g. {\"hypotheses\": [hypotheses_obj_1, hypotheses_obj_2, ...], "
-        "hypotheses_obj_n = {\"name\": \"...\", \"description\": \"...\", \"verify_method\": \"...\", \"expected_result\": \"...\"}"
+        f"and the research paper abstract: {paper_abstract}, "
+        "please propose 3 research hypotheses that directly build on this work. "
+        "Return your answer in valid JSON, following exactly this schema:\n"
+        "```\n"
+        "{\n"
+        '  "hypotheses": [\n'
+        "    {\n"
+        '      "name": "<concise hypothesis name>",\n'
+        '      "description": "<2-3 sentence explanation>",\n'
+        '      "verify_method": "<experimental or analytical method>",\n'
+        '      "expected_result": "<what outcome would support the hypothesis>"\n'
+        "    }\n"
+        "  ]\n"
+        "}\n"
+        "```"
     )
+
     # 呼叫 LLM
     response = client.chat.completions.create(
         model=HYPOTHESES_PROMPT_MODEL,
