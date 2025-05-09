@@ -264,6 +264,8 @@ def view_paper_dialog(paper_name, username):
             experiment_structure_yaml = st.session_state.get('experiment_structure', "")
             generator_data['experiment_structure'] = experiment_structure_yaml
             update_paper_idea(paper_name, username, {"generator": generator_data})
+            st.session_state['experiment_structure'] = experiment_structure_yaml
+            st.success("Experiment structure updated successfully!")
 
     # Tab 5: Paper Generate
     with tab5:
