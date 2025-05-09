@@ -8,6 +8,7 @@ KEY_PROMPT_MODEL = os.getenv("KEY_PROMPT_MODEL", "gpt-3.5-turbo")
 TITLE_PROMPT_MODEL = os.getenv("TITLE_PROMPT_MODEL", "microsoft/phi-4-reasoning-plus")
 ABSTRACT_PROMPT_MODEL = os.getenv("ABSTRACT_PROMPT_MODEL", "microsoft/phi-4-reasoning-plus")
 NOVELTY_CHECK_MODEL = os.getenv("NOVELTY_CHECK_MODEL", "perplexity/sonar-reasoning-pro")
+HYPOTHESIS_PROMPT_MODEL = os.getenv("HYPOTHESIS_PROMPT_MODEL", "google/gemini-2.0-flash-001")
 
 # 已設定：
 # OPENROUTE_BASE_URL, OPENROUTE_API_KEY, KEY_PROMPT_MODEL
@@ -192,7 +193,7 @@ def llm_hypothesis_prompt(paper_title:str, paper_abstract:str) -> list[dict]:
     )
     # 呼叫 LLM
     response = client.chat.completions.create(
-        model=NOVELTY_CHECK_MODEL,
+        model=HYPOTHESIS_PROMPT_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user",   "content": user_prompt},
