@@ -172,7 +172,7 @@ def view_paper_dialog(paper_name, username):
             novelty_check = st.button("Novelty Check", key="novelty_check")
         save_section1 = st.button("Save", key="save_section1")
         if suggest_paper_title:
-            relate_summaries = similarity_search(paper_name, username, st.session_state['keywords'])['results'][-1]
+            relate_summaries = similarity_search(paper_name, username, ' '.join(st.session_state['keywords']))['results'][-1]
             # Call the LLM to get suggested paper title
             sg_paper_title = llm_paper_title_prompt(
                 keywords=st.session_state['keywords'],
@@ -181,7 +181,7 @@ def view_paper_dialog(paper_name, username):
             )
             st.info(f"Suggested paper title: {sg_paper_title}")
         if suggest_abstract:
-            relate_chunks = similarity_search(paper_name, username, st.session_state['keywords'])['results'][0]
+            relate_chunks = similarity_search(paper_name, username, ' '.join(st.session_state['keywords']))['results'][0]
             # Call the LLM to get suggested abstract
             sg_abstract = llm_abstract_prompt(
                 keywords=st.session_state['keywords'],
