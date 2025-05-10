@@ -105,7 +105,7 @@ def llm_paper_title_prompt(keywords: list[str], user_draft_title: str, relate_su
 
 def llm_abstract_prompt(keywords: list[str], paper_title: str, relate_summaries: list[str] = [], user_draft_abstract: str = "") -> str:
     """
-    According to keywords and paper_title, ask LLM to generate a TL;DR related to the SCI field.
+    According to keywords and paper_title, ask LLM to generate a abstract related to the SCI field.
     Return format: str.
     """
     # 初始化 client
@@ -114,15 +114,15 @@ def llm_abstract_prompt(keywords: list[str], paper_title: str, relate_summaries:
         api_key=OPENROUTE_API_KEY,
     )
     # 準備對話
-    system_prompt = "You are an assistant that suggests research paper TL;DRs in the scientific domain."
+    system_prompt = "You are an assistant that suggests research paper abstracts in the scientific domain."
     user_prompt = (
         f"Given the research keywords: {', '.join(keywords)}, "
         f"and the research paper title: {paper_title}, "
         f"and the related summaries: {', '.join(relate_summaries)}, "
-        f"and the user draft TL;DR: {user_draft_abstract}, "
-        "please suggest one relevant research paper TL;DR. "
+        f"and the user draft abstract: {user_draft_abstract}, "
+        "please suggest one relevant research paper abstract. "
         "Reply with a JSON string only. "
-        "e.g. {\"tl;dr\": \"...\"}"
+        "e.g. {\"abstract\": \"...\"}"
     )
     # 呼叫 LLM
     response = client.chat.completions.create(
@@ -139,13 +139,13 @@ def llm_abstract_prompt(keywords: list[str], paper_title: str, relate_summaries:
     except json.JSONDecodeError:
         # 若 LLM 回傳格式非 JSON，就嘗試以行拆分
         abstract = {
-            "tl;dr": content.strip()
+            "abstract": content.strip()
         }
-    return abstract["tl;dr"]
+    return abstract["abstract"]
 
 def llm_novelty_check(paper_title:str, paper_abstract:str) -> dict:
     """
-    Check the novelty of a research paper by comparing its title and TL;DR with existing papers.
+    Check the novelty of a research paper by comparing its title and abstract with existing papers.
     Return format: dict.
     """
     # 初始化 client
@@ -157,7 +157,7 @@ def llm_novelty_check(paper_title:str, paper_abstract:str) -> dict:
     system_prompt = "You are an assistant that checks the novelty of research papers in the scientific domain."
     user_prompt = (
         f"Given the research paper title: {paper_title}, "
-        f"and the research paper TL;DR: {paper_abstract}, "
+        f"and the research paper abstract: {paper_abstract}, "
         "please check the novelty of the paper and return a JSON object with the results."
         "e.g. {\"novelty\": \"1 to 10\", \"reason\": \"...\", \"suggestion\": \"...\"}"
     )
