@@ -74,7 +74,7 @@ def get_related_papers(keywords):
     }
     url = f"{BACKEND_SERVER}/arxiv/search"
     
-    # 將關鍵字字串分割成列表，並包含原始關鍵字字串
+    # Split the keyword string into a list and include the original keyword string
     keyword_list = [keywords] + [k.strip() for k in keywords]
     for keyword in keyword_list:
         payload_list = {
@@ -108,28 +108,28 @@ def get_emb_index(paper_name: str, username: str):
     }
     results = []
     try:
-        # 使用 httpx.Client 建立連線
-        with httpx.Client(timeout=None) as client: # timeout=None 避免長時間操作超時
-            # 使用 connect_sse 建立 SSE 連線
-            # httpx_sse 支援傳遞 json 參數
+        # Use httpx.Client to establish a connection
+        with httpx.Client(timeout=None) as client: # timeout=None to avoid timeout for long operations
+            # Use connect_sse to establish an SSE connection
+            # httpx_sse supports passing json parameters
             with connect_sse(client, "GET", url, json=payload) as event_source:
-                # 檢查 HTTP 狀態碼 (httpx_sse 會在連線失敗時拋出異常)
+                # Check HTTP status code (httpx_sse raises exceptions on connection failure)
                 # event_source.response.raise_for_status() # httpx_sse < 0.4.0
                 # For httpx_sse >= 0.4.0, errors are raised during connect_sse
 
-                # 迭代接收 SSE 事件
+                # Iterate to receive SSE events
                 for sse in event_source.iter_sse():
-                    # sse.data 是每次 yield 的訊息字串
+                    # sse.data is the message string yielded each time
                     if sse.data == "[DONE]":
                         break
                     results.append(sse.data)
                     try:
-                        # 嘗試解析 JSON 並顯示狀態
+                        # Attempt to parse JSON and display status
                         data = json.loads(sse.data)
                         status = data.get("status", "processing")
                         st.toast(status)
                     except json.JSONDecodeError:
-                        # 如果不是 JSON，直接顯示原始訊息
+                        # If not JSON, directly display the raw message
                         st.toast(f"Received: {sse.data}")
                     except Exception as e:
                         st.error(f"Error processing event: {e}")
