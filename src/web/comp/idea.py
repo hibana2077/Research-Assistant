@@ -1,7 +1,6 @@
 import streamlit as st
 import polars as pl
 
-# from .utils.data import get_paper_idea, update_paper_idea
 from .utils.data import (
     get_paper_idea,
     update_paper_idea,
